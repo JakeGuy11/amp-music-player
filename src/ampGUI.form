@@ -53,6 +53,8 @@
                       </Group>
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          <Component id="dStopButton" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="dStartButton" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -71,7 +73,10 @@
                       <Component id="dButtonSelectDir" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="196" max="32767" attributes="0"/>
-                  <Component id="dStartButton" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="dStartButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="dStopButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -100,6 +105,17 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Play"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="PlayMedia"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="dStopButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Stop Playback"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="StopPlayback"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

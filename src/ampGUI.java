@@ -1,5 +1,7 @@
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +22,9 @@ public class ampGUI extends javax.swing.JFrame {
     //Global Paths
     private Path musicPath = Paths.get(System.getProperty("user.home") + "/Music");
     private Path homePath = Paths.get(System.getProperty("user.home"));
+    //FFPlay processes. We need them global so we can start them in 1 function and stop them in another
+    ProcessBuilder procBuilder;
+    Process proc;
     
     /**
      * Creates new form ampGUI
@@ -42,6 +47,8 @@ public class ampGUI extends javax.swing.JFrame {
             System.out.println("User's music dir: " + musicPath.toString()); //Print the default music path
         }
         this.dBoxMusicDir.setText(System.getProperty("user.home") + "/Music"); //Set the textBox to the music path
+        //Set the stopPlayback button to invisible so you can only click it once it's started
+        this.dStopButton.setVisible(false);
     }
 
     /**
@@ -58,6 +65,7 @@ public class ampGUI extends javax.swing.JFrame {
         dBoxMusicDir = new javax.swing.JTextField();
         dButtonSelectDir = new javax.swing.JButton();
         dStartButton = new javax.swing.JButton();
+        dStopButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -74,6 +82,18 @@ public class ampGUI extends javax.swing.JFrame {
         });
 
         dStartButton.setText("Play");
+        dStartButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PlayMedia(evt);
+            }
+        });
+
+        dStopButton.setText("Stop Playback");
+        dStopButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                StopPlayback(evt);
+            }
+        });
 
         javax.swing.GroupLayout dPanelMainLayout = new javax.swing.GroupLayout(dPanelMain);
         dPanelMain.setLayout(dPanelMainLayout);
@@ -91,6 +111,8 @@ public class ampGUI extends javax.swing.JFrame {
                         .addComponent(dButtonSelectDir))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dPanelMainLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(dStopButton)
+                        .addGap(18, 18, 18)
                         .addComponent(dStartButton)))
                 .addContainerGap())
         );
@@ -104,7 +126,9 @@ public class ampGUI extends javax.swing.JFrame {
                     .addComponent(dBoxMusicDir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dButtonSelectDir))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 196, Short.MAX_VALUE)
-                .addComponent(dStartButton)
+                .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(dStartButton)
+                    .addComponent(dStopButton))
                 .addContainerGap())
         );
 
@@ -134,6 +158,25 @@ public class ampGUI extends javax.swing.JFrame {
         musicPath = Paths.get(absoluteDir);
         System.out.println("Music dir selected: " + absoluteDir);
     }//GEN-LAST:event_SelectDirSelected
+
+    private void PlayMedia(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayMedia
+        try {
+            String[] args = new String[] {"/bin/bash", "-c", "ffplay -loop -1 -an " + musicPath.toString() + "/vid.mp4"};
+            procBuilder = new ProcessBuilder(args);
+            procBuilder.redirectOutput(Redirect.INHERIT);
+            procBuilder.redirectError(Redirect.INHERIT);
+            proc = procBuilder.start();
+        } catch (IOException ex) {
+            System.out.println(ex.toString());
+        }
+        //Set the stopPlayback button to visible so you can click it
+        this.dStopButton.setVisible(true);
+    }//GEN-LAST:event_PlayMedia
+
+    private void StopPlayback(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopPlayback
+        proc.destroy();
+        this.dStopButton.setVisible(false);
+    }//GEN-LAST:event_StopPlayback
 
     /**
      * @param args the command line arguments
@@ -177,5 +220,6 @@ public class ampGUI extends javax.swing.JFrame {
     private javax.swing.JLabel dLabelMusicDir;
     private javax.swing.JPanel dPanelMain;
     private javax.swing.JButton dStartButton;
+    private javax.swing.JButton dStopButton;
     // End of variables declaration//GEN-END:variables
 }

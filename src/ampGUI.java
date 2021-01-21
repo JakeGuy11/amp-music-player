@@ -26,17 +26,65 @@ public class ampGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        dPanelMain = new javax.swing.JPanel();
+        dLabelMusicDir = new javax.swing.JLabel();
+        dBoxMusicDir = new javax.swing.JTextField();
+        dButtonSelectDir = new javax.swing.JButton();
+        dStartButton = new javax.swing.JButton();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
+
+        dLabelMusicDir.setText("Select your music directory (non-recursive):");
+
+        dBoxMusicDir.setText("/path/to/music");
+
+        dButtonSelectDir.setText("...");
+
+        dStartButton.setText("Play");
+
+        javax.swing.GroupLayout dPanelMainLayout = new javax.swing.GroupLayout(dPanelMain);
+        dPanelMain.setLayout(dPanelMainLayout);
+        dPanelMainLayout.setHorizontalGroup(
+            dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(dPanelMainLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(dPanelMainLayout.createSequentialGroup()
+                        .addComponent(dLabelMusicDir)
+                        .addGap(0, 226, Short.MAX_VALUE))
+                    .addGroup(dPanelMainLayout.createSequentialGroup()
+                        .addComponent(dBoxMusicDir)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dButtonSelectDir))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dPanelMainLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(dStartButton)))
+                .addContainerGap())
+        );
+        dPanelMainLayout.setVerticalGroup(
+            dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(dPanelMainLayout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addComponent(dLabelMusicDir)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(dBoxMusicDir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(dButtonSelectDir))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 196, Short.MAX_VALUE)
+                .addComponent(dStartButton)
+                .addContainerGap())
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(dPanelMain, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addComponent(dPanelMain, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -77,6 +125,12 @@ public class ampGUI extends javax.swing.JFrame {
         });
     }
 
+    //TODO: Add 2 lists: Music lists and video lists (video lists will be incorperated at a later time)
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField dBoxMusicDir;
+    private javax.swing.JButton dButtonSelectDir;
+    private javax.swing.JLabel dLabelMusicDir;
+    private javax.swing.JPanel dPanelMain;
+    private javax.swing.JButton dStartButton;
     // End of variables declaration//GEN-END:variables
 }

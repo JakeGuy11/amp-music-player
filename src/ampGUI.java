@@ -1,3 +1,10 @@
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import javax.swing.JFileChooser;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -10,11 +17,31 @@
  */
 public class ampGUI extends javax.swing.JFrame {
 
+    //Global Paths
+    private Path musicPath = Paths.get(System.getProperty("user.home") + "/Music");
+    private Path homePath = Paths.get(System.getProperty("user.home"));
+    
     /**
      * Creates new form ampGUI
      */
     public ampGUI() {
         initComponents();
+        //Generate Automatic Paths
+        System.out.println("User's home dir: " + homePath.toString()); //Print the environment home path
+        System.out.println("Checking searching for music directory...");
+        if (Files.notExists(musicPath)){ //[home]/Music does not exist
+            Path tmpMusicPath = Paths.get(homePath.toString() + "/music"); //Try music instead of Music
+            if (Files.notExists(tmpMusicPath)){ //[home]/music does not exist
+                System.out.println("Music path not found. Using home directory");
+                musicPath = homePath; //Just set it to the home directory
+            } else { //[home]/music does exist
+                System.out.println("User's music dir: " + musicPath.toString());
+                musicPath = tmpMusicPath;
+            }
+        } else { //[home]/Music does exist
+            System.out.println("User's music dir: " + musicPath.toString()); //Print the default music path
+        }
+        this.dBoxMusicDir.setText(System.getProperty("user.home") + "/Music"); //Set the textBox to the music path
     }
 
     /**
@@ -40,6 +67,11 @@ public class ampGUI extends javax.swing.JFrame {
         dBoxMusicDir.setText("/path/to/music");
 
         dButtonSelectDir.setText("...");
+        dButtonSelectDir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SelectDirSelected(evt);
+            }
+        });
 
         dStartButton.setText("Play");
 
@@ -89,6 +121,19 @@ public class ampGUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void SelectDirSelected(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SelectDirSelected
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new java.io.File("~/"));
+        fileChooser.setDialogTitle("Select your desired music directory (recursive)");
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.showOpenDialog(null);
+        File myDir = fileChooser.getSelectedFile();
+        String absoluteDir = myDir.getAbsolutePath();
+        this.dBoxMusicDir.setText(absoluteDir);
+        musicPath = Paths.get(absoluteDir);
+        System.out.println("Music dir selected: " + absoluteDir);
+    }//GEN-LAST:event_SelectDirSelected
 
     /**
      * @param args the command line arguments

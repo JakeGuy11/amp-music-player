@@ -1,5 +1,6 @@
 //Imports
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
@@ -65,6 +66,8 @@ public class ampGUI extends javax.swing.JFrame {
         dButtonSelectDir = new javax.swing.JButton();
         dStartButton = new javax.swing.JButton();
         dStopButton = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -100,6 +103,13 @@ public class ampGUI extends javax.swing.JFrame {
             }
         });
 
+        jList1.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane1.setViewportView(jList1);
+
         javax.swing.GroupLayout dPanelMainLayout = new javax.swing.GroupLayout(dPanelMain);
         dPanelMain.setLayout(dPanelMainLayout);
         dPanelMainLayout.setHorizontalGroup(
@@ -112,7 +122,8 @@ public class ampGUI extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(dButtonSelectDir))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dPanelMainLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1)
+                        .addGap(18, 18, 18)
                         .addComponent(dStopButton)
                         .addGap(18, 18, 18)
                         .addComponent(dStartButton))
@@ -132,10 +143,15 @@ public class ampGUI extends javax.swing.JFrame {
                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dBoxMusicDir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dButtonSelectDir))
-                .addGap(102, 102, 102)
-                .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(dStartButton)
-                    .addComponent(dStopButton))
+                .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(dPanelMainLayout.createSequentialGroup()
+                        .addGap(102, 102, 102)
+                        .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(dStartButton)
+                            .addComponent(dStopButton)))
+                    .addGroup(dPanelMainLayout.createSequentialGroup()
+                        .addGap(7, 7, 7)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -179,9 +195,9 @@ public class ampGUI extends javax.swing.JFrame {
 
     //The play button was selected
     private void PlayMedia(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayMedia
+        //Create a string array with all the parts of the ffplay command
+        String[] args = new String[] {"/bin/bash","-c","./scripts/runAV.sh"};
         try {
-            //Create a string array with all the parts of the ffplay command
-            String[] args = new String[] {"/bin/bash", "-c", "ffplay -loop -1 -an -noborder" + musicPath.toString() + "/vid.mp4"};
             //Create a new processbuilder made from the parts of the command we want to run
             procBuilder = new ProcessBuilder(args);
             //Redirect any terminal output to the default location, in this case that's the console
@@ -240,6 +256,20 @@ public class ampGUI extends javax.swing.JFrame {
         });
     }
 
+    //Get all files of type mp3
+    public File[] getFiles(File dirName){
+        
+        //Return a list of files in the passed directory after it gets filtered
+        return dirName.listFiles(new FilenameFilter() { 
+                //Determine whether or not to accept the file
+                 public boolean accept(File dir, String filename) {
+                     //Return the file if it ends with mp3
+                     return filename.endsWith(".mp3");
+                 }
+        } );
+
+    }
+    
     //TODO: Add 2 lists: Music lists and video lists (video lists will be incorperated at a later time)
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField dBoxMusicDir;
@@ -250,5 +280,7 @@ public class ampGUI extends javax.swing.JFrame {
     private javax.swing.JButton dStopButton;
     private javax.swing.JPanel dTitlePanel;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JList<String> jList1;
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }

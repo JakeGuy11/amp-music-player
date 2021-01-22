@@ -66,8 +66,6 @@ public class ampGUI extends javax.swing.JFrame {
         dButtonSelectDir = new javax.swing.JButton();
         dStartButton = new javax.swing.JButton();
         dStopButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -103,13 +101,6 @@ public class ampGUI extends javax.swing.JFrame {
             }
         });
 
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane1.setViewportView(jList1);
-
         javax.swing.GroupLayout dPanelMainLayout = new javax.swing.GroupLayout(dPanelMain);
         dPanelMain.setLayout(dPanelMainLayout);
         dPanelMainLayout.setHorizontalGroup(
@@ -122,8 +113,7 @@ public class ampGUI extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(dButtonSelectDir))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dPanelMainLayout.createSequentialGroup()
-                        .addComponent(jScrollPane1)
-                        .addGap(18, 18, 18)
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(dStopButton)
                         .addGap(18, 18, 18)
                         .addComponent(dStartButton))
@@ -143,15 +133,10 @@ public class ampGUI extends javax.swing.JFrame {
                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dBoxMusicDir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dButtonSelectDir))
-                .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(dPanelMainLayout.createSequentialGroup()
-                        .addGap(102, 102, 102)
-                        .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(dStartButton)
-                            .addComponent(dStopButton)))
-                    .addGroup(dPanelMainLayout.createSequentialGroup()
-                        .addGap(7, 7, 7)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                .addGap(102, 102, 102)
+                .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(dStartButton)
+                    .addComponent(dStopButton))
                 .addContainerGap())
         );
 
@@ -196,7 +181,8 @@ public class ampGUI extends javax.swing.JFrame {
     //The play button was selected
     private void PlayMedia(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayMedia
         //Create a string array with all the parts of the ffplay command
-        String[] args = new String[] {"/bin/bash","-c","./scripts/runAV.sh"};
+        //For now, vid1.ts and vid2.ts are just funny clips, but will be replaced in the future
+        String[] args = new String[] {"/bin/bash","-c","./scripts/runVideo.sh vid1.ts vid2.ts"};
         try {
             //Create a new processbuilder made from the parts of the command we want to run
             procBuilder = new ProcessBuilder(args);
@@ -255,6 +241,11 @@ public class ampGUI extends javax.swing.JFrame {
             }
         });
     }
+    
+    public void generatePlayList(boolean type, File[] files, File listDir){
+        
+        
+    }
 
     //Get all files of type mp3
     public File[] getFiles(File dirName){
@@ -280,7 +271,5 @@ public class ampGUI extends javax.swing.JFrame {
     private javax.swing.JButton dStopButton;
     private javax.swing.JPanel dTitlePanel;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JList<String> jList1;
-    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }

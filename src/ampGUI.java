@@ -1,4 +1,5 @@
 //Imports
+import java.util.List;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -6,6 +7,11 @@ import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 /**
  * @author Jake_Guy_11
@@ -15,9 +21,18 @@ public class ampGUI extends javax.swing.JFrame {
     //Global Paths
     private Path musicPath = Paths.get(System.getProperty("user.home") + "/Music");
     private Path homePath = Paths.get(System.getProperty("user.home"));
-    //FFPlay processes. We need them global so we can start them in 1 function and stop them in another
-    ProcessBuilder procBuilder;
-    Process proc;
+    //The process builder for the video generating script
+    ProcessBuilder videoBuilder;
+    //The process builder for the audio generating script
+    ProcessBuilder audioBuilder;
+    //The process builder for the ffplay command
+    ProcessBuilder ffplayBuilder;
+    //The actual process for the video generating script
+    Process videoProc;
+    //The actual process for the audio generating script
+    Process audioProc;
+    //The actual process for the ffplay command
+    Process ffplayProc;
     
     //Create JForm GUI
     public ampGUI() {
@@ -178,31 +193,64 @@ public class ampGUI extends javax.swing.JFrame {
         System.out.println("Music dir selected: " + absoluteDir);
     }//GEN-LAST:event_SelectDirSelected
 
+    
+    
+    //TODO: To solve the FFplay qiting error and the audio overlay error, we can do this:
+    //Concat the mp3s in a different script
+    //In the mp3 script, overlay the video and the audio
+    //Let the java know when that's done, and then ffplay directly from java (which will allow us to kill the process)
+    
     //The play button was selected
     private void PlayMedia(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayMedia
-        //Create a string array with all the parts of the ffplay command
+        //Just call the GenerateList method for testing
+        generatePlayList(true, musicPath.toFile());
+        //Create a string array with all the parts of the ffplay video command
+        //This will be replaced with the generatePlayList method eventually, at least for the arguments
         //For now, vid1.ts and vid2.ts are just funny clips, but will be replaced in the future
-        String[] args = new String[] {"/bin/bash","-c","./scripts/runVideo.sh vid1.ts vid2.ts"};
+        String[] videoArgs = new String[] {"/bin/bash","-c","./scripts/runVideo.sh vid1.ts vid2.ts"};
+        //Create a string array with the names of the audio we want to play
+        //For now, audio1.mp3 and audio2.mp3 are both test songs
+        String[] audioArgs = new String[] {"/bin/bash","-c","./scripts/runVideo.sh audio1.mp3 audio2.mp3"};
+        //Create a string array with all the commands for the ffplay command. This will not be changed dynamically
+        String[] ffplayArgs = new String[] {"/bin/bash","-c","ffplay -fs -loop -1 ./gen/final.mp4"};
         try {
-            //Create a new processbuilder made from the parts of the command we want to run
-            procBuilder = new ProcessBuilder(args);
-            //Redirect any terminal output to the default location, in this case that's the console
-            procBuilder.redirectOutput(Redirect.INHERIT);
-            //Redirect any terminal errors to the default location, in this case that's the console
-            procBuilder.redirectError(Redirect.INHERIT);
-            //Start a proccess made from the proccess we just built
-            proc = procBuilder.start();
+            //Create a new processbuilder made from the parts of the command we want to run for all 3 processes
+            videoBuilder = new ProcessBuilder(videoArgs);
+            audioBuilder = new ProcessBuilder(audioArgs);
+            ffplayBuilder = new ProcessBuilder(ffplayArgs);
+            //Redirect any terminal output to the default location, in this case that's the console for all 3 processes
+            videoBuilder.redirectOutput(Redirect.INHERIT);
+            audioBuilder.redirectOutput(Redirect.INHERIT);
+            ffplayBuilder.redirectOutput(Redirect.INHERIT);
+            //Redirect any terminal errors to the default location, in this case that's the console for all 3 processes
+            videoBuilder.redirectError(Redirect.INHERIT);
+            audioBuilder.redirectError(Redirect.INHERIT);
+            ffplayBuilder.redirectError(Redirect.INHERIT);
+            //Start the video process
+            videoProc = videoBuilder.start();
+            //Wait for the video process to finish
+            videoProc.waitFor();
+            //The video generating process is done, start generating the audio
+            audioProc = audioBuilder.start();
+            //wait for the audio to be generated
+            audioProc.waitFor();
+            //We have both the audio video, and the final (which was generated at the end of the audio script
+            //Now, we can start ffplay
+            //We don't need to wait for it though, because we want the user to be able to minimize the window, and if we waited, they couldn't
+            ffplayProc = ffplayBuilder.start();
         } catch (IOException ex) {
             //There was an error, print it
             System.out.println(ex.toString());
+        } catch (InterruptedException ex) {
+            System.out.println(ex.toString());
         }
-        //Set the stopPlayback button to visible so you can click it
+        //Set the stopPlayback button to visible so you can click it and stop ffplay
         this.dStopButton.setVisible(true);
     }//GEN-LAST:event_PlayMedia
 
     private void StopPlayback(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopPlayback
         //Destroy the proccess that's playing ffmpeg
-        proc.destroy();
+        ffplayProc.destroy();
         //Make the stop button invisible since nothing's playing anymore
         this.dStopButton.setVisible(false);
     }//GEN-LAST:event_StopPlayback
@@ -242,26 +290,44 @@ public class ampGUI extends javax.swing.JFrame {
         });
     }
     
-    public void generatePlayList(boolean type, File[] files, File listDir){
+    public List<File> generatePlayList(boolean type, File listDir){
         
+        //Eventually, we'll be able to differentiate between the music files and the video files
+        if(type == true) System.out.println("List type: Music");
+        else System.out.println("List type: Video. Not yet supported, generating music list");
         
-    }
+        //Create a blank list for all the paths and songs
+        List<File> myFileList;
 
-    //Get all files of type mp3
-    public File[] getFiles(File dirName){
+        //Only add the songs to the list if we're in a directory
+        if(listDir.isDirectory()){
+            //
+            myFileList = getFiles(listDir);
+            System.out.println(myFileList.toString());
+        } else {
+            //We're not in a directory, so we can't do anything
+            System.out.println("Selected directory is not a directory");
+            myFileList = null;
+        }
+
+        
+        return myFileList;
+    }
+    
+    //Get all files of type mp3s in a directory
+    public List<File> getFiles(File dirName){
         
         //Return a list of files in the passed directory after it gets filtered
-        return dirName.listFiles(new FilenameFilter() { 
+        return Arrays.asList(dirName.listFiles(new FilenameFilter() { 
                 //Determine whether or not to accept the file
                  public boolean accept(File dir, String filename) {
                      //Return the file if it ends with mp3
                      return filename.endsWith(".mp3");
                  }
-        } );
+        } ));
 
     }
     
-    //TODO: Add 2 lists: Music lists and video lists (video lists will be incorperated at a later time)
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField dBoxMusicDir;
     private javax.swing.JButton dButtonSelectDir;

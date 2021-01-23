@@ -19,10 +19,7 @@ CONCATCMD=${CONCATCMD%|}
 cd ../media/
 
 #delete the output if it already exists
-rm -f ../gen/out.mp4
+rm -f ../gen/videoOut.mp4
 
 #concat all the specified inputs without audio
-ffmpeg -i "$CONCATCMD" -an -c copy ../gen/out.mp4
-
-#play the generated final video in fullscreen
-ffplay -fs ../gen/out.mp4
+ffmpeg -i "$CONCATCMD" -an -c copy ../gen/videoOut.mp4

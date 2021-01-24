@@ -7,17 +7,20 @@ import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.sound.sampled.AudioFormat;
+
 /**
  * @author Jake_Guy_11
  */
 public class ampGUI extends javax.swing.JFrame {
-
+    
     //Global Paths
     private Path musicPath = Paths.get(System.getProperty("user.home") + "/Music");
     private Path homePath = Paths.get(System.getProperty("user.home"));
@@ -25,19 +28,25 @@ public class ampGUI extends javax.swing.JFrame {
     ProcessBuilder videoBuilder;
     //The process builder for the audio generating script
     ProcessBuilder audioBuilder;
-    //The process builder for the ffplay command
-    ProcessBuilder ffplayBuilder;
+    //The process builder for the ffplay video
+    ProcessBuilder ffVideoBuilder;
+    //The process builder for the ffplay audio
+    ProcessBuilder ffAudioBuilder;
     //The actual process for the video generating script
     Process videoProc;
     //The actual process for the audio generating script
     Process audioProc;
-    //The actual process for the ffplay command
-    Process ffplayProc;
+    //The actual process for the ffplay video
+    Process ffVideoProc;
+    //The actual process for the ffplay audio
+    Process ffAudioProc;
     
     //Create JForm GUI
     public ampGUI() {
         //Do the built-in init
         initComponents();
+        //Override the default close, to make sure all processes are closed
+        
         //Generate Automatic Paths
         //Print the home directory
         System.out.println("User's home dir: " + homePath.toString());
@@ -192,13 +201,6 @@ public class ampGUI extends javax.swing.JFrame {
         //Print the selected directory
         System.out.println("Music dir selected: " + absoluteDir);
     }//GEN-LAST:event_SelectDirSelected
-
-    
-    
-    //TODO: To solve the FFplay qiting error and the audio overlay error, we can do this:
-    //Concat the mp3s in a different script
-    //In the mp3 script, overlay the video and the audio
-    //Let the java know when that's done, and then ffplay directly from java (which will allow us to kill the process)
     
     //The play button was selected
     private void PlayMedia(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayMedia
@@ -210,22 +212,26 @@ public class ampGUI extends javax.swing.JFrame {
         String[] videoArgs = new String[] {"/bin/bash","-c","./scripts/runVideo.sh vid1.ts vid2.ts"};
         //Create a string array with the names of the audio we want to play
         //For now, audio1.mp3 and audio2.mp3 are both test songs
-        String[] audioArgs = new String[] {"/bin/bash","-c","./scripts/runVideo.sh audio1.mp3 audio2.mp3"};
+        String[] audioArgs = new String[] {"/bin/bash","-c","./scripts/runAudio.sh audio1.mp3 audio2.mp3"};
         //Create a string array with all the commands for the ffplay command. This will not be changed dynamically
-        String[] ffplayArgs = new String[] {"/bin/bash","-c","ffplay -fs -loop -1 ./gen/final.mp4"};
+        String[] ffVideoArgs = new String[] {"/bin/bash","-c","ffplay -fs -loop -1 ./gen/videoOut.mp4"};
+        String[] ffAudioArgs = new String[] {"/bin/bash","-c","ffplay -nodisp -loop -1 ./gen/audioOut.mp3"};
         try {
-            //Create a new processbuilder made from the parts of the command we want to run for all 3 processes
+            //Create a new processbuilder made from the parts of the command we want to run for all 4 processes
             videoBuilder = new ProcessBuilder(videoArgs);
             audioBuilder = new ProcessBuilder(audioArgs);
-            ffplayBuilder = new ProcessBuilder(ffplayArgs);
-            //Redirect any terminal output to the default location, in this case that's the console for all 3 processes
+            ffVideoBuilder = new ProcessBuilder(ffVideoArgs);
+            ffAudioBuilder = new ProcessBuilder(ffAudioArgs);
+            //Redirect any terminal output to the default location, in this case that's the console for all 4 processes
             videoBuilder.redirectOutput(Redirect.INHERIT);
             audioBuilder.redirectOutput(Redirect.INHERIT);
-            ffplayBuilder.redirectOutput(Redirect.INHERIT);
-            //Redirect any terminal errors to the default location, in this case that's the console for all 3 processes
+            ffVideoBuilder.redirectOutput(Redirect.INHERIT);
+            ffAudioBuilder.redirectOutput(Redirect.INHERIT);
+            //Redirect any terminal errors to the default location, in this case that's the console for all 4 processes
             videoBuilder.redirectError(Redirect.INHERIT);
             audioBuilder.redirectError(Redirect.INHERIT);
-            ffplayBuilder.redirectError(Redirect.INHERIT);
+            ffVideoBuilder.redirectError(Redirect.INHERIT);
+            ffAudioBuilder.redirectError(Redirect.INHERIT);
             //Start the video process
             videoProc = videoBuilder.start();
             //Wait for the video process to finish
@@ -236,8 +242,10 @@ public class ampGUI extends javax.swing.JFrame {
             audioProc.waitFor();
             //We have both the audio video, and the final (which was generated at the end of the audio script
             //Now, we can start ffplay
-            //We don't need to wait for it though, because we want the user to be able to minimize the window, and if we waited, they couldn't
-            ffplayProc = ffplayBuilder.start();
+            //We don't need to wait for it though, because we want the user to be able to minimize the java window, and if we waited, they couldn't
+            //Start the audio and video as seperate processes
+            ffVideoProc = ffVideoBuilder.start();
+            ffAudioProc = ffAudioBuilder.start();
         } catch (IOException ex) {
             //There was an error, print it
             System.out.println(ex.toString());
@@ -250,7 +258,8 @@ public class ampGUI extends javax.swing.JFrame {
 
     private void StopPlayback(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StopPlayback
         //Destroy the proccess that's playing ffmpeg
-        ffplayProc.destroy();
+        ffVideoProc.destroy();
+        ffAudioProc.destroy();
         //Make the stop button invisible since nothing's playing anymore
         this.dStopButton.setVisible(false);
     }//GEN-LAST:event_StopPlayback

@@ -1,4 +1,6 @@
 //Imports
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -9,12 +11,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import javax.swing.JFileChooser;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.sound.sampled.AudioFormat;
 
 /**
  * @author Jake_Guy_11
@@ -32,6 +28,8 @@ public class ampGUI extends javax.swing.JFrame {
     ProcessBuilder ffVideoBuilder;
     //The process builder for the ffplay audio
     ProcessBuilder ffAudioBuilder;
+    //The process builder for the script to join the ffplay 'lives'
+    ProcessBuilder joinProcessesBuilder;
     //The actual process for the video generating script
     Process videoProc;
     //The actual process for the audio generating script
@@ -40,13 +38,28 @@ public class ampGUI extends javax.swing.JFrame {
     Process ffVideoProc;
     //The actual process for the ffplay audio
     Process ffAudioProc;
+    //The actual process for the script to join the ffplay 'lives'
+    Process joinProcessesProc;
     
     //Create JForm GUI
     public ampGUI() {
         //Do the built-in init
         initComponents();
         //Override the default close, to make sure all processes are closed
-        
+        //Create a new instance of this class, set it to our current window
+        final ampGUI myGUI = this;
+        //Add a listener
+        addWindowListener(new WindowAdapter() {
+            //This is called when the window is closed
+            public void windowClosing(WindowEvent e) {
+                //Destroy all 4 processes if they exist
+                if(videoProc.isAlive()) videoProc.destroy();
+                if(audioProc.isAlive()) audioProc.destroy();
+                if(ffVideoProc.isAlive()) ffVideoProc.destroy();
+                if(ffAudioProc.isAlive()) ffAudioProc.destroy();
+                System.exit(0);
+            }
+        });
         //Generate Automatic Paths
         //Print the home directory
         System.out.println("User's home dir: " + homePath.toString());
@@ -240,12 +253,24 @@ public class ampGUI extends javax.swing.JFrame {
             audioProc = audioBuilder.start();
             //wait for the audio to be generated
             audioProc.waitFor();
+            
             //We have both the audio video, and the final (which was generated at the end of the audio script
             //Now, we can start ffplay
             //We don't need to wait for it though, because we want the user to be able to minimize the java window, and if we waited, they couldn't
             //Start the audio and video as seperate processes
             ffVideoProc = ffVideoBuilder.start();
             ffAudioProc = ffAudioBuilder.start();
+            
+            //Now that both the audio and video are going, start the script that will join the 'existences' of the two ffplays (since 1 can be closed manually, make it so it can kill the other)
+            //Create the command
+            String[] joinProcessesArgs = new String[] {"/bin/bash","-c","./scripts/connectFFProcesses.sh " + ffVideoProc.pid() + " " + ffAudioProc.pid()};
+            //Create a new processBuilder from the arguments above
+            joinProcessesBuilder = new ProcessBuilder(joinProcessesArgs);
+            //Redirect the console outputs
+            joinProcessesBuilder.redirectOutput(Redirect.INHERIT);
+            //Redirect the console errors
+            joinProcessesBuilder.redirectError(Redirect.INHERIT);
+            joinProcessesProc = joinProcessesBuilder.start();
         } catch (IOException ex) {
             //There was an error, print it
             System.out.println(ex.toString());

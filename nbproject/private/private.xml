@@ -5,6 +5,7 @@
         <group>
             <file>file:/home/jake/Documents/GitHub/amp-music-player/src/ampGUI.java</file>
             <file>file:/home/jake/Documents/GitHub/amp-music-player/scripts/runAudio.sh</file>
+            <file>file:/home/jake/Documents/GitHub/amp-music-player/scripts/connectFFProcesses.sh</file>
             <file>file:/home/jake/Documents/GitHub/amp-music-player/scripts/runVideo.sh</file>
         </group>
     </open-files>

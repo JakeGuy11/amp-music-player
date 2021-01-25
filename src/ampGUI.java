@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 
 /**
@@ -20,6 +22,8 @@ public class ampGUI extends javax.swing.JFrame {
     //Global Paths
     private Path musicPath = Paths.get(System.getProperty("user.home") + "/Music");
     private Path homePath = Paths.get(System.getProperty("user.home"));
+    //The process builder for copy process
+    ProcessBuilder cpBuilder;
     //The process builder for the video generating script
     ProcessBuilder videoBuilder;
     //The process builder for the audio generating script
@@ -30,6 +34,8 @@ public class ampGUI extends javax.swing.JFrame {
     ProcessBuilder ffAudioBuilder;
     //The process builder for the script to join the ffplay 'lives'
     ProcessBuilder joinProcessesBuilder;
+    //The actual process for the copy command
+    Process cpProc;
     //The actual process for the video generating script
     Process videoProc;
     //The actual process for the audio generating script
@@ -52,11 +58,18 @@ public class ampGUI extends javax.swing.JFrame {
         addWindowListener(new WindowAdapter() {
             //This is called when the window is closed
             public void windowClosing(WindowEvent e) {
-                //Destroy all 4 processes if they exist
-                if(videoProc.isAlive()) videoProc.destroy();
-                if(audioProc.isAlive()) audioProc.destroy();
-                if(ffVideoProc.isAlive()) ffVideoProc.destroy();
-                if(ffAudioProc.isAlive()) ffAudioProc.destroy();
+                //Destroy all 4 processes if they exist and are not null
+                try{
+                    if(videoProc != null){
+                        if(videoProc.isAlive()) videoProc.destroy();
+                        if(audioProc.isAlive()) audioProc.destroy();
+                        if(ffVideoProc.isAlive()) ffVideoProc.destroy();
+                        if(ffAudioProc.isAlive()) ffAudioProc.destroy();
+                    }
+                } catch (Exception ex) {
+                    System.out.println(ex.toString());
+                }
+                
                 System.exit(0);
             }
         });
@@ -88,6 +101,9 @@ public class ampGUI extends javax.swing.JFrame {
         
         //Set the stopPlayback button to invisible so you can only click it once it's started
         this.dStopButton.setVisible(false);
+        
+        //Set the loading message to invisible
+        this.dLabelLoading.setVisible(false);
     }
 
     //Auto-generated code. DO NOT MODIFY.
@@ -103,6 +119,7 @@ public class ampGUI extends javax.swing.JFrame {
         dButtonSelectDir = new javax.swing.JButton();
         dStartButton = new javax.swing.JButton();
         dStopButton = new javax.swing.JButton();
+        dLabelLoading = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -138,10 +155,13 @@ public class ampGUI extends javax.swing.JFrame {
             }
         });
 
+        dLabelLoading.setText("Loading Data...");
+
         javax.swing.GroupLayout dPanelMainLayout = new javax.swing.GroupLayout(dPanelMain);
         dPanelMain.setLayout(dPanelMainLayout);
         dPanelMainLayout.setHorizontalGroup(
             dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(dTitlePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(dPanelMainLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -150,7 +170,8 @@ public class ampGUI extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(dButtonSelectDir))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dPanelMainLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(dLabelLoading)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(dStopButton)
                         .addGap(18, 18, 18)
                         .addComponent(dStartButton))
@@ -158,7 +179,6 @@ public class ampGUI extends javax.swing.JFrame {
                         .addComponent(dLabelMusicDir)
                         .addGap(0, 226, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addComponent(dTitlePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         dPanelMainLayout.setVerticalGroup(
             dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -173,7 +193,8 @@ public class ampGUI extends javax.swing.JFrame {
                 .addGap(102, 102, 102)
                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dStartButton)
-                    .addComponent(dStopButton))
+                    .addComponent(dStopButton)
+                    .addComponent(dLabelLoading))
                 .addContainerGap())
         );
 
@@ -196,7 +217,7 @@ public class ampGUI extends javax.swing.JFrame {
         //Create a new instance of a file choose
         JFileChooser fileChooser = new JFileChooser();
         //Set the starting directory to the home directory
-        fileChooser.setCurrentDirectory(new File(homePath.toUri()));
+        fileChooser.setCurrentDirectory(new File(musicPath.toUri()));
         //Set the window title to tell them to choose their music directory
         fileChooser.setDialogTitle("Select your desired music directory (recursive)");
         //Allow the dialogue to only choose directories
@@ -217,8 +238,44 @@ public class ampGUI extends javax.swing.JFrame {
     
     //The play button was selected
     private void PlayMedia(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayMedia
-        //Just call the GenerateList method for testing
-        generatePlayList(true, musicPath.toFile());
+        //If any of our processes are already opened, kill them
+        try{
+            if(videoProc != null){
+                if(cpProc.isAlive()) cpProc.destroy();
+                if(videoProc.isAlive()) videoProc.destroy();
+                if(audioProc.isAlive()) audioProc.destroy();
+                if(ffVideoProc.isAlive()) ffVideoProc.destroy();
+                if(ffAudioProc.isAlive()) ffAudioProc.destroy();
+            }
+        } catch (Exception ex) {
+            System.out.println(ex.toString());
+        }
+        
+        //Update our audio library
+        //Create a list for our audio
+        List<File> audioList;
+        //Now add the auto-fetched paths to it
+        audioList = generatePlayList(true, musicPath.toFile());
+        //Create a blank string array which we will overwrite with our arguments later
+        String[] cpArgs = new String[] {"/bin/bash","-c",""};
+        //Make a for loop to copy each mp3 file to our media directory
+        for (File currentFile : audioList) {
+            try {
+                cpArgs[2] ="cp \"" + currentFile.getAbsolutePath() + "\" ./media/";
+                cpBuilder = new ProcessBuilder(cpArgs);
+                cpBuilder.redirectOutput(Redirect.INHERIT);
+                cpBuilder.redirectError(Redirect.INHERIT);
+                cpProc = cpBuilder.start();
+                synchronized (cpProc) {
+                    cpProc.wait();
+                }
+            } catch (IOException ex) {
+                System.out.println(ex.toString());
+            } catch (InterruptedException ex) {
+                System.out.println(ex.toString());
+            }
+        }
+        
         //Create a string array with all the parts of the ffplay video command
         //This will be replaced with the generatePlayList method eventually, at least for the arguments
         //For now, vid1.ts and vid2.ts are just funny clips, but will be replaced in the future
@@ -335,9 +392,8 @@ public class ampGUI extends javax.swing.JFrame {
 
         //Only add the songs to the list if we're in a directory
         if(listDir.isDirectory()){
-            //
             myFileList = getFiles(listDir);
-            System.out.println(myFileList.toString());
+            System.out.println("Auto-gen audio array: " + myFileList.toString());
         } else {
             //We're not in a directory, so we can't do anything
             System.out.println("Selected directory is not a directory");
@@ -365,6 +421,7 @@ public class ampGUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField dBoxMusicDir;
     private javax.swing.JButton dButtonSelectDir;
+    private javax.swing.JLabel dLabelLoading;
     private javax.swing.JLabel dLabelMusicDir;
     private javax.swing.JPanel dPanelMain;
     private javax.swing.JButton dStartButton;

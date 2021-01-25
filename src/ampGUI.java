@@ -23,7 +23,7 @@ public class ampGUI extends javax.swing.JFrame {
     private Path musicPath = Paths.get(System.getProperty("user.home") + "/Music");
     private Path homePath = Paths.get(System.getProperty("user.home"));
     //The process builder for copy process
-    ProcessBuilder cpBuilder;
+    ProcessBuilder basicBuilder;
     //The process builder for the video generating script
     ProcessBuilder videoBuilder;
     //The process builder for the audio generating script
@@ -35,7 +35,7 @@ public class ampGUI extends javax.swing.JFrame {
     //The process builder for the script to join the ffplay 'lives'
     ProcessBuilder joinProcessesBuilder;
     //The actual process for the copy command
-    Process cpProc;
+    Process basicProc;
     //The actual process for the video generating script
     Process videoProc;
     //The actual process for the audio generating script
@@ -241,7 +241,7 @@ public class ampGUI extends javax.swing.JFrame {
         //If any of our processes are already opened, kill them
         try{
             if(videoProc != null){
-                if(cpProc.isAlive()) cpProc.destroy();
+                if(basicProc.isAlive()) basicProc.destroy();
                 if(videoProc.isAlive()) videoProc.destroy();
                 if(audioProc.isAlive()) audioProc.destroy();
                 if(ffVideoProc.isAlive()) ffVideoProc.destroy();
@@ -252,22 +252,54 @@ public class ampGUI extends javax.swing.JFrame {
         }
         
         //Update our audio library
+        //Start out by removing all mp3s in the folder
+        //Create a blank string array which we will overwrite with our arguments later
+        String[] basicArgs = new String[] {"/bin/bash","-c",""};
+        //Set the command to remove all the mp3s in our media folder
+        basicArgs[2] ="rm ./media/*.mp3";
+        try {
+            //Create a new processBuilder with our rm command
+            basicBuilder = new ProcessBuilder(basicArgs);
+            //Redirect error and console output
+            basicBuilder.redirectOutput(Redirect.INHERIT);
+            basicBuilder.redirectError(Redirect.INHERIT);
+            //Start the process
+            basicProc = basicBuilder.start();
+            //Set it so synchronous so it has to wait
+            synchronized(basicProc){
+                //Check if there are any errors
+                if(!"".equals(basicProc.getErrorStream().toString())) {
+                    //There are errors, most likely that there are no mp3s
+                    System.out.println("Error during removing");
+                } else {
+                //There are no errors, so we can wait for the files to be removed
+                //Wait for all the files to be removed
+                basicProc.wait();
+                }
+            }
+        } catch (IOException ex) {
+            System.out.println(ex.toString());
+        } catch (InterruptedException ex) {
+            System.out.println(ex.toString());
+        }
+        
         //Create a list for our audio
         List<File> audioList;
         //Now add the auto-fetched paths to it
         audioList = generatePlayList(true, musicPath.toFile());
-        //Create a blank string array which we will overwrite with our arguments later
-        String[] cpArgs = new String[] {"/bin/bash","-c",""};
         //Make a for loop to copy each mp3 file to our media directory
         for (File currentFile : audioList) {
             try {
-                cpArgs[2] ="cp \"" + currentFile.getAbsolutePath() + "\" ./media/";
-                cpBuilder = new ProcessBuilder(cpArgs);
-                cpBuilder.redirectOutput(Redirect.INHERIT);
-                cpBuilder.redirectError(Redirect.INHERIT);
-                cpProc = cpBuilder.start();
-                synchronized (cpProc) {
-                    cpProc.wait();
+                //Overwrite the arguments to copy mp3s from our music directory
+                basicArgs[2] ="cp \"" + currentFile.getAbsolutePath() + "\" ./media/";
+                //overwrite the basicBuilder with our new args
+                basicBuilder = new ProcessBuilder(basicArgs);
+                //Start the new process
+                basicProc = basicBuilder.start();
+                //Make it synchronized so it has to wait
+                synchronized (basicProc) {
+                    //Wait for it to finish copying
+                    basicProc.wait();
                 }
             } catch (IOException ex) {
                 System.out.println(ex.toString());

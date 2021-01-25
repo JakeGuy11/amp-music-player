@@ -1,15 +1,19 @@
 //Imports
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
 import java.util.List;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -294,6 +298,9 @@ public class ampGUI extends javax.swing.JFrame {
                 basicArgs[2] ="cp \"" + currentFile.getAbsolutePath() + "\" ./media/";
                 //overwrite the basicBuilder with our new args
                 basicBuilder = new ProcessBuilder(basicArgs);
+                //Redirect error and console output
+                basicBuilder.redirectOutput(Redirect.INHERIT);
+                basicBuilder.redirectError(Redirect.INHERIT);
                 //Start the new process
                 basicProc = basicBuilder.start();
                 //Make it synchronized so it has to wait
@@ -301,6 +308,7 @@ public class ampGUI extends javax.swing.JFrame {
                     //Wait for it to finish copying
                     basicProc.wait();
                 }
+                System.out.println("Copied: " + currentFile.getAbsolutePath());
             } catch (IOException ex) {
                 System.out.println(ex.toString());
             } catch (InterruptedException ex) {
@@ -308,13 +316,59 @@ public class ampGUI extends javax.swing.JFrame {
             }
         }
         
+        //Overwrite all spaces in the file names with underscores (so bash can understand them
+        try {
+            System.out.println("Starting the replaceSpaces script");
+            //Overwrite the arguments to run the replace script
+            basicArgs[2] ="./scripts/replaceSpaces.sh";
+            //overwrite the basicBuilder with our new args
+            basicBuilder = new ProcessBuilder(basicArgs);
+            //Redirect error and console output
+            basicBuilder.redirectOutput(Redirect.INHERIT);
+            basicBuilder.redirectError(Redirect.INHERIT);
+            //Start the new process
+            basicProc = basicBuilder.start();
+            //Make it synchronized so it has to wait
+            synchronized (basicProc) {
+                //Wait for it to finish copying
+                basicProc.wait();
+            }
+        } catch (IOException ex) {
+            System.out.println(ex.toString());
+        } catch (InterruptedException ex) {
+            System.out.println(ex.toString());
+        }
+        
+        //Get the file names of all our files (since stupid concat can't handle paths)
+        //Create an empty list for all our file basenames
+        List<String> fileNameList = new ArrayList<>();
+        //Create an empty list for all the directories in the path that we'll split
+        List<String> pathPartList = new ArrayList<>();
+        //Create a for loop for each of our files in the audioList
+        for(File currentFile : audioList){
+            //Make our path parts list equal to an array of the entire path split at each "/"
+            pathPartList = Arrays.asList(currentFile.getAbsoluteFile().toString().split("/"));
+            //Replace all " " with _ so our script doesn't think they're seperate arguments
+            fileNameList.add(pathPartList.get(pathPartList.size() - 1).replaceAll(" ", "_"));
+            //Add the last part of the above array to our file name list
+            System.out.println("Path parts: " + pathPartList.toString());
+            System.out.println("fileNameList so far: " + fileNameList.toString());
+        }        
+        
+        //Now we need to generate the string that concats and runs our audio
+        //Create a string joiner that will put our array 
+        StringJoiner strJoiner = new StringJoiner(" ", "", "");
+        //Add each element of our file name array to our string joiner
+        fileNameList.forEach(strJoiner::add);
+        //Print the complete argument string
+        String audioListToInsert = strJoiner.toString();
+        
         //Create a string array with all the parts of the ffplay video command
         //This will be replaced with the generatePlayList method eventually, at least for the arguments
         //For now, vid1.ts and vid2.ts are just funny clips, but will be replaced in the future
         String[] videoArgs = new String[] {"/bin/bash","-c","./scripts/runVideo.sh vid1.ts vid2.ts"};
         //Create a string array with the names of the audio we want to play
-        //For now, audio1.mp3 and audio2.mp3 are both test songs
-        String[] audioArgs = new String[] {"/bin/bash","-c","./scripts/runAudio.sh audio1.mp3 audio2.mp3"};
+        String[] audioArgs = new String[] {"/bin/bash","-c","./scripts/runAudio.sh " + audioListToInsert};
         //Create a string array with all the commands for the ffplay command. This will not be changed dynamically
         String[] ffVideoArgs = new String[] {"/bin/bash","-c","ffplay -fs -loop -1 ./gen/videoOut.mp4"};
         String[] ffAudioArgs = new String[] {"/bin/bash","-c","ffplay -nodisp -loop -1 ./gen/audioOut.mp3"};

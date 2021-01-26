@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -356,6 +357,8 @@ public class ampGUI extends javax.swing.JFrame {
         }        
         
         //Now we need to generate the string that concats and runs our audio
+        //Randomize the play order
+        //Collections.shuffle(fileNameList);
         //Create a string joiner that will put our array 
         StringJoiner strJoiner = new StringJoiner(" ", "", "");
         //Add each element of our file name array to our string joiner
@@ -379,15 +382,15 @@ public class ampGUI extends javax.swing.JFrame {
             ffVideoBuilder = new ProcessBuilder(ffVideoArgs);
             ffAudioBuilder = new ProcessBuilder(ffAudioArgs);
             //Redirect any terminal output to the default location, in this case that's the console for all 4 processes
-            videoBuilder.redirectOutput(Redirect.INHERIT);
-            audioBuilder.redirectOutput(Redirect.INHERIT);
-            ffVideoBuilder.redirectOutput(Redirect.INHERIT);
-            ffAudioBuilder.redirectOutput(Redirect.INHERIT);
+            //videoBuilder.redirectOutput(Redirect.INHERIT);
+            //audioBuilder.redirectOutput(Redirect.INHERIT);
+            //ffVideoBuilder.redirectOutput(Redirect.INHERIT);
+            //ffAudioBuilder.redirectOutput(Redirect.INHERIT);
             //Redirect any terminal errors to the default location, in this case that's the console for all 4 processes
-            videoBuilder.redirectError(Redirect.INHERIT);
-            audioBuilder.redirectError(Redirect.INHERIT);
-            ffVideoBuilder.redirectError(Redirect.INHERIT);
-            ffAudioBuilder.redirectError(Redirect.INHERIT);
+            //videoBuilder.redirectError(Redirect.INHERIT);
+            //audioBuilder.redirectError(Redirect.INHERIT);
+            //ffVideoBuilder.redirectError(Redirect.INHERIT);
+            //ffAudioBuilder.redirectError(Redirect.INHERIT);
             //Start the video process
             videoProc = videoBuilder.start();
             //Wait for the video process to finish

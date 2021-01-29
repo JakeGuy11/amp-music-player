@@ -58,9 +58,6 @@ public class ampGUI extends javax.swing.JFrame {
         //Do the built-in init
         initComponents();
         //Override the default close, to make sure all processes are closed
-        //Create a new instance of this class, set it to our current window
-        final ampGUI myGUI = this;
-        //Add a listener
         addWindowListener(new WindowAdapter() {
             //This is called when the window is closed
             public void windowClosing(WindowEvent e) {
@@ -108,8 +105,8 @@ public class ampGUI extends javax.swing.JFrame {
         //Set the stopPlayback button to invisible so you can only click it once it's started
         this.dStopButton.setVisible(false);
         
-        //Set the loading message to invisible
-        this.dLabelLoading.setVisible(false);
+        //Set the loading message to blank
+        this.dLabelLoading.setText("");
     }
 
     //Auto-generated code. DO NOT MODIFY.
@@ -242,11 +239,13 @@ public class ampGUI extends javax.swing.JFrame {
         System.out.println("Music dir selected: " + absoluteDir);
     }//GEN-LAST:event_SelectDirSelected
     
-    //TODO: Add loading message
     //TODO: Add a quick option with messy console output
     
     //The play button was selected
     private void PlayMedia(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayMedia
+        
+        //Start the loading message
+        this.dLabelLoading.setText("Loading Data...");
         
         System.out.println("Killing old processes");
         
@@ -445,6 +444,8 @@ public class ampGUI extends javax.swing.JFrame {
             //Start the process
             joinProcessesProc = joinProcessesBuilder.start();
             
+            //Hide the loading message
+            this.dLabelLoading.setText("");
         } catch (IOException ex) {
             //There was an error, print it
             System.out.println(ex.toString());

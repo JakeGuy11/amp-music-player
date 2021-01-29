@@ -342,12 +342,19 @@ public class ampGUI extends javax.swing.JFrame {
         List<String> fileNameList = new ArrayList<>();
         //Create an empty list for all the directories in the path that we'll split
         List<String> pathPartList = new ArrayList<>();
+        //Create a string to hold the name value while we replace the problematic characters
+        String currentName = "";
         //Create a for loop for each of our files in the audioList
         for(File currentFile : audioList){
             //Make our path parts list equal to an array of the entire path split at each "/"
             pathPartList = Arrays.asList(currentFile.getAbsoluteFile().toString().split("/"));
-            //Replace all " " with _ so our script doesn't think they're seperate arguments amd add it to the list
-            fileNameList.add(pathPartList.get(pathPartList.size() - 1).replaceAll(" ", "_"));
+            //Replace all problematic characters with _ so our script doesn't think they're seperate arguments
+            //THESE MUST MATCH THE CHARACTERS IN THE BASH SCRIPT OR IT WILL NOT WORK
+            currentName = pathPartList.get(pathPartList.size() - 1).replaceAll(" ", "_");
+            currentName = currentName.replaceAll("\\(", "_");
+            currentName = currentName.replaceAll("\\)", "_");
+            currentName = currentName.replaceAll("'", "_");
+            fileNameList.add(currentName);
         }        
         
         System.out.println("Finished adding all the file names to list");
@@ -413,14 +420,14 @@ public class ampGUI extends javax.swing.JFrame {
             audioProc.waitFor();
             TimeUnit.SECONDS.sleep((long) 0.5);
             System.out.println("Audio process finished");
-            /*
+            
             //We have both the audio video, and the final (which was generated at the end of the audio script
             //Now, we can start ffplay
             //We don't need to wait for it though, because we want the user to be able to minimize the java window, and if we waited, they couldn't
             //Start the audio and video as seperate processes
             System.out.println("Starting ffplay scripts");
             ffVideoProc = ffVideoBuilder.start();
-            //ffAudioProc = ffAudioBuilder.start();
+            ffAudioProc = ffAudioBuilder.start();
             System.out.println("Started ffplay scripts");
             
             //Now that both the audio and video are going, start the script that will join the 'existences' of the two ffplays (since 1 can be closed manually, make it so it can kill the other)
@@ -434,7 +441,7 @@ public class ampGUI extends javax.swing.JFrame {
             joinProcessesBuilder.redirectError(Redirect.INHERIT);
             //Start the process
             joinProcessesProc = joinProcessesBuilder.start();
-            */
+            
         } catch (IOException ex) {
             //There was an error, print it
             System.out.println(ex.toString());

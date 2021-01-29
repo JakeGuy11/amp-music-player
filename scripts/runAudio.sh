@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#Let the program know we're starting this script
 echo "BASH: starting audio script"
 
 #go to the scripts folder so we can preform actions from there
@@ -10,7 +11,7 @@ CONCATCMD="concat:"
 
 #Start a for loop from all the arguments, the arguments being the names of the video files (as a ts) in the media folder
 for arg; do
-    #append the file to play and a |
+    #append the file to play and a |, the recognized separated for concat
     CONCATCMD="$CONCATCMD$arg|"
 done
 
@@ -26,6 +27,8 @@ rm -f ../gen/audioOut.mp3
 #concat all the specified inputs without audio
 ffmpeg -i "$CONCATCMD" -acodec copy ../gen/audioOut.mp3
 
-sleep 1
+#Wait a little for the console to catch up
+sleep 1.25
 
+#Let the program know we're done here
 echo "BASH: finished video script"

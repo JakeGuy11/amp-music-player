@@ -242,6 +242,9 @@ public class ampGUI extends javax.swing.JFrame {
         System.out.println("Music dir selected: " + absoluteDir);
     }//GEN-LAST:event_SelectDirSelected
     
+    //TODO: Add loading message
+    //TODO: Add a quick option with messy console output
+    
     //The play button was selected
     private void PlayMedia(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayMedia
         

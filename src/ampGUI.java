@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.StringJoiner;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -243,6 +244,9 @@ public class ampGUI extends javax.swing.JFrame {
     
     //The play button was selected
     private void PlayMedia(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayMedia
+        
+        System.out.println("Killing old processes");
+        
         //If any of our processes are already opened, kill them
         try{
             if(videoProc != null){
@@ -254,14 +258,17 @@ public class ampGUI extends javax.swing.JFrame {
             }
         } catch (Exception ex) {
             System.out.println(ex.toString());
-        }
+        } 
+        
+        System.out.println("Killed old processes");
+        System.out.println("Removing all old mp3's");
         
         //Update our audio library
         //Start out by removing all mp3s in the folder
         //Create a blank string array which we will overwrite with our arguments later
         String[] basicArgs = new String[] {"/bin/bash","-c",""};
-        //Set the command to remove all the mp3s in our media folder
-        basicArgs[2] ="rm ./media/*.mp3";
+        //Set the command to remove all the mp3s the project folder
+        basicArgs[2] ="find . -name \"*.mp3\" -type f -delete";
         try {
             //Create a new processBuilder with our rm command
             basicBuilder = new ProcessBuilder(basicArgs);
@@ -270,23 +277,16 @@ public class ampGUI extends javax.swing.JFrame {
             basicBuilder.redirectError(Redirect.INHERIT);
             //Start the process
             basicProc = basicBuilder.start();
-            //Set it so synchronous so it has to wait
-            synchronized(basicProc){
-                //Check if there are any errors
-                if(!"".equals(basicProc.getErrorStream().toString())) {
-                    //There are errors, most likely that there are no mp3s
-                    System.out.println("Error during removing");
-                } else {
-                //There are no errors, so we can wait for the files to be removed
-                //Wait for all the files to be removed
-                basicProc.wait();
-                }
-            }
+            //Wait for all the files to be removed
+            basicProc.waitFor();
         } catch (IOException ex) {
             System.out.println(ex.toString());
         } catch (InterruptedException ex) {
             System.out.println(ex.toString());
         }
+        
+        System.out.println("Removed all old mp3's");
+        System.out.println("Copying all selected music to ./media");
         
         //Create a list for our audio
         List<File> audioList;
@@ -304,11 +304,7 @@ public class ampGUI extends javax.swing.JFrame {
                 basicBuilder.redirectError(Redirect.INHERIT);
                 //Start the new process
                 basicProc = basicBuilder.start();
-                //Make it synchronized so it has to wait
-                synchronized (basicProc) {
-                    //Wait for it to finish copying
-                    basicProc.wait();
-                }
+                basicProc.waitFor();
                 System.out.println("Copied: " + currentFile.getAbsolutePath());
             } catch (IOException ex) {
                 System.out.println(ex.toString());
@@ -317,11 +313,13 @@ public class ampGUI extends javax.swing.JFrame {
             }
         }
         
+        System.out.println("Copied all music to ./media");
+        System.out.println("Starting character replacement script");
+        
         //Overwrite all spaces in the file names with underscores (so bash can understand them
         try {
-            System.out.println("Starting the replaceSpaces script");
             //Overwrite the arguments to run the replace script
-            basicArgs[2] ="./scripts/replaceSpaces.sh";
+            basicArgs[2] ="./scripts/characterReplacement.sh";
             //overwrite the basicBuilder with our new args
             basicBuilder = new ProcessBuilder(basicArgs);
             //Redirect error and console output
@@ -329,16 +327,15 @@ public class ampGUI extends javax.swing.JFrame {
             basicBuilder.redirectError(Redirect.INHERIT);
             //Start the new process
             basicProc = basicBuilder.start();
-            //Make it synchronized so it has to wait
-            synchronized (basicProc) {
-                //Wait for it to finish copying
-                basicProc.wait();
-            }
+            basicProc.waitFor();
         } catch (IOException ex) {
             System.out.println(ex.toString());
         } catch (InterruptedException ex) {
             System.out.println(ex.toString());
         }
+        
+        System.out.println("Finished character replacement script");
+        System.out.println("Adding all the file names (minus the paths) to list");
         
         //Get the file names of all our files (since stupid concat can't handle paths)
         //Create an empty list for all our file basenames
@@ -349,22 +346,25 @@ public class ampGUI extends javax.swing.JFrame {
         for(File currentFile : audioList){
             //Make our path parts list equal to an array of the entire path split at each "/"
             pathPartList = Arrays.asList(currentFile.getAbsoluteFile().toString().split("/"));
-            //Replace all " " with _ so our script doesn't think they're seperate arguments
+            //Replace all " " with _ so our script doesn't think they're seperate arguments amd add it to the list
             fileNameList.add(pathPartList.get(pathPartList.size() - 1).replaceAll(" ", "_"));
-            //Add the last part of the above array to our file name list
-            System.out.println("Path parts: " + pathPartList.toString());
-            System.out.println("fileNameList so far: " + fileNameList.toString());
         }        
+        
+        System.out.println("Finished adding all the file names to list");
+        System.out.println("Generating concat command");
         
         //Now we need to generate the string that concats and runs our audio
         //Randomize the play order
-        //Collections.shuffle(fileNameList);
+        Collections.shuffle(fileNameList);
         //Create a string joiner that will put our array 
         StringJoiner strJoiner = new StringJoiner(" ", "", "");
         //Add each element of our file name array to our string joiner
         fileNameList.forEach(strJoiner::add);
         //Print the complete argument string
         String audioListToInsert = strJoiner.toString();
+        
+        System.out.println("Generated concat command: " + audioListToInsert);
+        System.out.println("Generating script commands and arguments");
         
         //Create a string array with all the parts of the ffplay video command
         //This will be replaced with the generatePlayList method eventually, at least for the arguments
@@ -375,37 +375,53 @@ public class ampGUI extends javax.swing.JFrame {
         //Create a string array with all the commands for the ffplay command. This will not be changed dynamically
         String[] ffVideoArgs = new String[] {"/bin/bash","-c","ffplay -fs -loop -1 ./gen/videoOut.mp4"};
         String[] ffAudioArgs = new String[] {"/bin/bash","-c","ffplay -nodisp -loop -1 ./gen/audioOut.mp3"};
+        
+        System.out.println("Generated script commands and arguments");
+        System.out.println("Starting all processes");
+        
         try {
+            System.out.println("Creating processBuilders");
             //Create a new processbuilder made from the parts of the command we want to run for all 4 processes
             videoBuilder = new ProcessBuilder(videoArgs);
             audioBuilder = new ProcessBuilder(audioArgs);
             ffVideoBuilder = new ProcessBuilder(ffVideoArgs);
             ffAudioBuilder = new ProcessBuilder(ffAudioArgs);
+            System.out.println("Created processBuilders");
             //Redirect any terminal output to the default location, in this case that's the console for all 4 processes
-            //videoBuilder.redirectOutput(Redirect.INHERIT);
-            //audioBuilder.redirectOutput(Redirect.INHERIT);
-            //ffVideoBuilder.redirectOutput(Redirect.INHERIT);
-            //ffAudioBuilder.redirectOutput(Redirect.INHERIT);
+            System.out.println("Redirecting terminal output");
+            videoBuilder.redirectOutput(Redirect.INHERIT);
+            audioBuilder.redirectOutput(Redirect.INHERIT);
+            ffVideoBuilder.redirectOutput(Redirect.INHERIT);
+            ffAudioBuilder.redirectOutput(Redirect.INHERIT);
             //Redirect any terminal errors to the default location, in this case that's the console for all 4 processes
-            //videoBuilder.redirectError(Redirect.INHERIT);
-            //audioBuilder.redirectError(Redirect.INHERIT);
-            //ffVideoBuilder.redirectError(Redirect.INHERIT);
-            //ffAudioBuilder.redirectError(Redirect.INHERIT);
+            videoBuilder.redirectError(Redirect.INHERIT);
+            audioBuilder.redirectError(Redirect.INHERIT);
+            ffVideoBuilder.redirectError(Redirect.INHERIT);
+            ffAudioBuilder.redirectError(Redirect.INHERIT);
+            System.out.println("Redirected terminal output");
             //Start the video process
+            System.out.println("Starting video process");
             videoProc = videoBuilder.start();
             //Wait for the video process to finish
             videoProc.waitFor();
+            TimeUnit.SECONDS.sleep((long) 0.5);
+            System.out.println("Video proc finished");
             //The video generating process is done, start generating the audio
+            System.out.println("Starting audio process");
             audioProc = audioBuilder.start();
             //wait for the audio to be generated
             audioProc.waitFor();
-            
+            TimeUnit.SECONDS.sleep((long) 0.5);
+            System.out.println("Audio process finished");
+            /*
             //We have both the audio video, and the final (which was generated at the end of the audio script
             //Now, we can start ffplay
             //We don't need to wait for it though, because we want the user to be able to minimize the java window, and if we waited, they couldn't
             //Start the audio and video as seperate processes
+            System.out.println("Starting ffplay scripts");
             ffVideoProc = ffVideoBuilder.start();
-            ffAudioProc = ffAudioBuilder.start();
+            //ffAudioProc = ffAudioBuilder.start();
+            System.out.println("Started ffplay scripts");
             
             //Now that both the audio and video are going, start the script that will join the 'existences' of the two ffplays (since 1 can be closed manually, make it so it can kill the other)
             //Create the command
@@ -416,7 +432,9 @@ public class ampGUI extends javax.swing.JFrame {
             joinProcessesBuilder.redirectOutput(Redirect.INHERIT);
             //Redirect the console errors
             joinProcessesBuilder.redirectError(Redirect.INHERIT);
+            //Start the process
             joinProcessesProc = joinProcessesBuilder.start();
+            */
         } catch (IOException ex) {
             //There was an error, print it
             System.out.println(ex.toString());

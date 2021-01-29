@@ -1,2 +1,8 @@
+#NetBeans specific
 /amp-music-player/nbproject/private/
 /build/
+
+#AV Things that take up a lot of storage
+*.mp3
+*.mp4
+*.ts

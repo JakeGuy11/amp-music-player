@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "BASH: starting audio script"
+
 #go to the scripts folder so we can preform actions from there
 cd ./scripts
 
@@ -23,3 +25,7 @@ rm -f ../gen/audioOut.mp3
 
 #concat all the specified inputs without audio
 ffmpeg -i "$CONCATCMD" -acodec copy ../gen/audioOut.mp3
+
+sleep 1
+
+echo "BASH: finished video script"

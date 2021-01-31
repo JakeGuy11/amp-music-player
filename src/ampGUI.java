@@ -27,6 +27,7 @@ public class ampGUI extends javax.swing.JFrame {
     
     //Global Paths
     private Path musicPath = Paths.get(System.getProperty("user.home") + "/Music");
+    private Path videoPath = Paths.get(System.getProperty("user.dir") + "/media");
     private Path homePath = Paths.get(System.getProperty("user.home"));
     //The process builder for copy process
     ProcessBuilder basicBuilder;
@@ -237,13 +238,11 @@ public class ampGUI extends javax.swing.JFrame {
         System.out.println("Music dir selected: " + absoluteDir);
     }//GEN-LAST:event_SelectDirSelected
     
-    //TODO: Add a quick option with messy console output
     //TODO: Replace the individual character replacements with all non-alphanumeric character replacement
     //Above: If 2 files end up with the same name, just append the system uptime or smth
     
     //The play button was selected
     private void PlayMedia(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayMedia
-        
         boolean waitMode = this.dCleanMode.isSelected();
         
         System.out.println("Killing old processes");
@@ -292,7 +291,7 @@ public class ampGUI extends javax.swing.JFrame {
         //Create a list for our audio
         List<File> audioList;
         //Now add the auto-fetched paths to it
-        audioList = generatePlayList(true, musicPath.toFile());
+        audioList = generatePlayList("mp3", musicPath.toFile());
         //Make a for loop to copy each mp3 file to our media directory
         for (File currentFile : audioList) {
             try {
@@ -342,46 +341,84 @@ public class ampGUI extends javax.swing.JFrame {
         
         //Get the file names of all our files (since stupid concat can't handle paths)
         //Create an empty list for all our file basenames
-        List<String> fileNameList = new ArrayList<>();
+        List<String> audioNameList = new ArrayList<>();
         //Create an empty list for all the directories in the path that we'll split
-        List<String> pathPartList = new ArrayList<>();
+        List<String> audioPathPartList = new ArrayList<>();
         //Create a string to hold the name value while we replace the problematic characters
-        String currentName = "";
+        String currentAudioName = "";
         //Create a for loop for each of our files in the audioList
         for(File currentFile : audioList){
             //Make our path parts list equal to an array of the entire path split at each "/"
-            pathPartList = Arrays.asList(currentFile.getAbsoluteFile().toString().split("/"));
+            audioPathPartList = Arrays.asList(currentFile.getAbsoluteFile().toString().split("/"));
             //Replace all problematic characters with _ so our script doesn't think they're seperate arguments
             //THESE MUST MATCH THE CHARACTERS IN THE BASH SCRIPT OR IT WILL NOT WORK
-            currentName = pathPartList.get(pathPartList.size() - 1).replaceAll(" ", "_");
-            currentName = currentName.replaceAll("\\(", "_");
-            currentName = currentName.replaceAll("\\)", "_");
-            currentName = currentName.replaceAll("'", "_");
-            fileNameList.add(currentName);
+            currentAudioName = audioPathPartList.get(audioPathPartList.size() - 1).replaceAll(" ", "_");
+            currentAudioName = currentAudioName.replaceAll("\\(", "_");
+            currentAudioName = currentAudioName.replaceAll("\\)", "_");
+            currentAudioName = currentAudioName.replaceAll("'", "_");
+            audioNameList.add(currentAudioName);
         }        
         
         System.out.println("Finished adding all the file names to list");
-        System.out.println("Generating concat command");
+        System.out.println("Adding all video to list");
+        
+        //Create a list of all the video (ts) files
+        List<File> videoList;
+        videoList = generatePlayList("ts", videoPath.toFile());
+        
+        //Get the file names of all our files (since stupid concat can't handle paths)
+        //Create an empty list for all our file basenames
+        List<String> videoNameList = new ArrayList<>();
+        //Create an empty list for all the directories in the path that we'll split
+        List<String> videoPathPartList = new ArrayList<>();
+        //Create a string to hold the name value while we replace the problematic characters
+        String currentVideoName = "";
+        //Create a for loop for each of our files in the audioList
+        for(File currentFile : videoList){
+            //Make our path parts list equal to an array of the entire path split at each "/"
+            videoPathPartList = Arrays.asList(currentFile.getAbsoluteFile().toString().split("/"));
+            //Add the actual file to the list of file names
+            //We don't do character replacement because the video will eventually be provided by the server, so we'll know there are no problematic characters
+            currentVideoName = videoPathPartList.get(videoPathPartList.size() - 1);
+            //Add our file name to our video name list
+            videoNameList.add(currentVideoName);
+        }        
+        
+        System.out.println("Added all video to list");
+        System.out.println("Generating audio concat command");
         
         //Now we need to generate the string that concats and runs our audio
         //Randomize the play order
-        Collections.shuffle(fileNameList);
+        Collections.shuffle(audioNameList);
         //Create a string joiner that will put our array 
         StringJoiner strJoiner = new StringJoiner(" ", "", "");
         //Add each element of our file name array to our string joiner
-        fileNameList.forEach(strJoiner::add);
+        audioNameList.forEach(strJoiner::add);
         //Print the complete argument string
         String audioListToInsert = strJoiner.toString();
         
-        System.out.println("Generated concat command: " + audioListToInsert);
+        System.out.println("Generated audio concat command: " + audioListToInsert);
+        System.out.println("Generating video concat command");
+        
+        //Now we need to generate the string that concats our video
+        //Randomize the play order
+        Collections.shuffle(videoNameList);
+        //Recreate our string joiner so we don't have all the old entries in it
+        strJoiner = new StringJoiner(" ", "", "");
+        //Add each element of our file name array to our string joiner
+        videoNameList.forEach(strJoiner::add);
+        //Add the complete argument string to the video list string
+        String videoListToInsert = strJoiner.toString();
+        
+        System.out.println("Generated video concat command: " + videoListToInsert);
         System.out.println("Generating script commands and arguments");
         
         //Create a string array with all the parts of the ffplay video command
         //This will be replaced with the generatePlayList method eventually, at least for the arguments
         //For now, vid1.ts and vid2.ts are just funny clips, but will be replaced in the future
         String[] videoArgs = new String[] {"/bin/bash","-c",""};
-        if(waitMode) videoArgs[2] = "./scripts/runVideo.sh vid1.ts vid2.ts";
-        else videoArgs[2] = "./scripts/QrunVideo.sh vid1.ts vid2.ts";
+        if(waitMode) videoArgs[2] = "./scripts/runVideo.sh " + videoListToInsert;
+        else videoArgs[2] = "./scripts/QrunVideo.sh " + videoListToInsert;
         //Create a string array with the names of the audio we want to play
         String[] audioArgs = new String[] {"/bin/bash","-c",""};
         if(waitMode) audioArgs[2] = "./scripts/runAudio.sh " + audioListToInsert;
@@ -502,19 +539,14 @@ public class ampGUI extends javax.swing.JFrame {
         });
     }
     
-    public List<File> generatePlayList(boolean type, File listDir){
+    public List<File> generatePlayList(String ext, File listDir){
         
-        //Eventually, we'll be able to differentiate between the music files and the video files
-        if(type == true) System.out.println("List type: Music");
-        else System.out.println("List type: Video. Not yet supported, generating music list");
-        
-        //Create a blank list for all the paths and songs
+        //Create a blank list for all the paths and files
         List<File> myFileList;
-
-        //Only add the songs to the list if we're in a directory
+        //Only add the files to the list if we're in a directory
         if(listDir.isDirectory()){
-            myFileList = getFiles(listDir);
-            System.out.println("Auto-gen audio array: " + myFileList.toString());
+            myFileList = getFiles(listDir, ext);
+            System.out.println("Auto-gen array: " + myFileList.toString());
         } else {
             //We're not in a directory, so we can't do anything
             System.out.println("Selected directory is not a directory");
@@ -526,14 +558,14 @@ public class ampGUI extends javax.swing.JFrame {
     }
     
     //Get all files of type mp3s in a directory
-    public List<File> getFiles(File dirName){
+    public List<File> getFiles(File dirName, String ext){
         
         //Return a list of files in the passed directory after it gets filtered
         return Arrays.asList(dirName.listFiles(new FilenameFilter() { 
                 //Determine whether or not to accept the file
                  public boolean accept(File dir, String filename) {
                      //Return the file if it ends with mp3
-                     return filename.endsWith(".mp3");
+                     return filename.endsWith("." + ext);
                  }
         } ));
 

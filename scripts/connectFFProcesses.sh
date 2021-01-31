@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 #Let the program know we're starting this script
 echo "BASH: starting process connection script"

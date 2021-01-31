@@ -104,12 +104,9 @@ public class ampGUI extends javax.swing.JFrame {
         
         //Set the stopPlayback button to invisible so you can only click it once it's started
         this.dStopButton.setVisible(false);
-        
-        //Set the loading message to blank
-        this.dLabelLoading.setText("");
     }
 
-    //Auto-generated code. DO NOT MODIFY.
+    //Auto-generated code. DO NOT MODIFY UNLESS YOU WANT TO
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -122,9 +119,10 @@ public class ampGUI extends javax.swing.JFrame {
         dButtonSelectDir = new javax.swing.JButton();
         dStartButton = new javax.swing.JButton();
         dStopButton = new javax.swing.JButton();
-        dLabelLoading = new javax.swing.JLabel();
+        dCleanMode = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(500, 250));
         setResizable(false);
 
         dTitlePanel.setLayout(new java.awt.BorderLayout());
@@ -158,7 +156,7 @@ public class ampGUI extends javax.swing.JFrame {
             }
         });
 
-        dLabelLoading.setText("Loading Data...");
+        dCleanMode.setText("Clean Console Mode");
 
         javax.swing.GroupLayout dPanelMainLayout = new javax.swing.GroupLayout(dPanelMain);
         dPanelMain.setLayout(dPanelMainLayout);
@@ -172,15 +170,15 @@ public class ampGUI extends javax.swing.JFrame {
                         .addComponent(dBoxMusicDir)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(dButtonSelectDir))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dPanelMainLayout.createSequentialGroup()
-                        .addComponent(dLabelLoading)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(dStopButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(dStartButton))
                     .addGroup(dPanelMainLayout.createSequentialGroup()
                         .addComponent(dLabelMusicDir)
-                        .addGap(0, 226, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(dPanelMainLayout.createSequentialGroup()
+                        .addComponent(dCleanMode)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 147, Short.MAX_VALUE)
+                        .addComponent(dStopButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(dStartButton)))
                 .addContainerGap())
         );
         dPanelMainLayout.setVerticalGroup(
@@ -193,11 +191,11 @@ public class ampGUI extends javax.swing.JFrame {
                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dBoxMusicDir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dButtonSelectDir))
-                .addGap(102, 102, 102)
+                .addGap(109, 109, 109)
                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(dCleanMode)
                     .addComponent(dStartButton)
-                    .addComponent(dStopButton)
-                    .addComponent(dLabelLoading))
+                    .addComponent(dStopButton))
                 .addContainerGap())
         );
 
@@ -240,12 +238,13 @@ public class ampGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_SelectDirSelected
     
     //TODO: Add a quick option with messy console output
+    //TODO: Replace the individual character replacements with all non-alphanumeric character replacement
+    //Above: If 2 files end up with the same name, just append the system uptime or smth
     
     //The play button was selected
     private void PlayMedia(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PlayMedia
         
-        //Start the loading message
-        this.dLabelLoading.setText("Loading Data...");
+        boolean waitMode = this.dCleanMode.isSelected();
         
         System.out.println("Killing old processes");
         
@@ -321,7 +320,9 @@ public class ampGUI extends javax.swing.JFrame {
         //Overwrite all spaces in the file names with underscores (so bash can understand them
         try {
             //Overwrite the arguments to run the replace script
-            basicArgs[2] ="./scripts/characterReplacement.sh";
+            if(waitMode) basicArgs[2] ="./scripts/characterReplacement.sh";
+            else basicArgs[2] ="./scripts/QcharacterReplacement.sh";
+
             //overwrite the basicBuilder with our new args
             basicBuilder = new ProcessBuilder(basicArgs);
             //Redirect error and console output
@@ -378,9 +379,13 @@ public class ampGUI extends javax.swing.JFrame {
         //Create a string array with all the parts of the ffplay video command
         //This will be replaced with the generatePlayList method eventually, at least for the arguments
         //For now, vid1.ts and vid2.ts are just funny clips, but will be replaced in the future
-        String[] videoArgs = new String[] {"/bin/bash","-c","./scripts/runVideo.sh vid1.ts vid2.ts"};
+        String[] videoArgs = new String[] {"/bin/bash","-c",""};
+        if(waitMode) videoArgs[2] = "./scripts/runVideo.sh vid1.ts vid2.ts";
+        else videoArgs[2] = "./scripts/QrunVideo.sh vid1.ts vid2.ts";
         //Create a string array with the names of the audio we want to play
-        String[] audioArgs = new String[] {"/bin/bash","-c","./scripts/runAudio.sh " + audioListToInsert};
+        String[] audioArgs = new String[] {"/bin/bash","-c",""};
+        if(waitMode) audioArgs[2] = "./scripts/runAudio.sh " + audioListToInsert;
+        else audioArgs[2] = "./scripts/QrunAudio.sh " + audioListToInsert;
         //Create a string array with all the commands for the ffplay command. This will not be changed dynamically
         String[] ffVideoArgs = new String[] {"/bin/bash","-c","ffplay -fs -loop -1 ./gen/videoOut.mp4"};
         String[] ffAudioArgs = new String[] {"/bin/bash","-c","ffplay -nodisp -loop -1 ./gen/audioOut.mp3"};
@@ -408,7 +413,6 @@ public class ampGUI extends javax.swing.JFrame {
             ffVideoBuilder.redirectError(Redirect.INHERIT);
             ffAudioBuilder.redirectError(Redirect.INHERIT);
             System.out.println("Redirected terminal output");
-            //Start the video process
             System.out.println("Starting video process");
             videoProc = videoBuilder.start();
             //Wait for the video process to finish
@@ -434,7 +438,9 @@ public class ampGUI extends javax.swing.JFrame {
             
             //Now that both the audio and video are going, start the script that will join the 'existences' of the two ffplays (since 1 can be closed manually, make it so it can kill the other)
             //Create the command
-            String[] joinProcessesArgs = new String[] {"/bin/bash","-c","./scripts/connectFFProcesses.sh " + ffVideoProc.pid() + " " + ffAudioProc.pid()};
+            String[] joinProcessesArgs = new String[] {"/bin/bash","-c",""};
+            if(waitMode) joinProcessesArgs[2] = "./scripts/connectFFProcesses.sh " + ffVideoProc.pid() + " " + ffAudioProc.pid();
+            else joinProcessesArgs[2] = "./scripts/QconnectFFProcesses.sh " + ffVideoProc.pid() + " " + ffAudioProc.pid();
             //Create a new processBuilder from the arguments above
             joinProcessesBuilder = new ProcessBuilder(joinProcessesArgs);
             //Redirect the console outputs
@@ -443,9 +449,6 @@ public class ampGUI extends javax.swing.JFrame {
             joinProcessesBuilder.redirectError(Redirect.INHERIT);
             //Start the process
             joinProcessesProc = joinProcessesBuilder.start();
-            
-            //Hide the loading message
-            this.dLabelLoading.setText("");
         } catch (IOException ex) {
             //There was an error, print it
             System.out.println(ex.toString());
@@ -539,7 +542,7 @@ public class ampGUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField dBoxMusicDir;
     private javax.swing.JButton dButtonSelectDir;
-    private javax.swing.JLabel dLabelLoading;
+    private javax.swing.JCheckBox dCleanMode;
     private javax.swing.JLabel dLabelMusicDir;
     private javax.swing.JPanel dPanelMain;
     private javax.swing.JButton dStartButton;

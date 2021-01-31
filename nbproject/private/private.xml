@@ -4,8 +4,12 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/home/jake/Documents/GitHub/amp-music-player/src/ampGUI.java</file>
+            <file>file:/home/jake/Documents/GitHub/amp-music-player/scripts/QconnectFFProcesses.sh</file>
+            <file>file:/home/jake/Documents/GitHub/amp-music-player/scripts/QrunAudio.sh</file>
+            <file>file:/home/jake/Documents/GitHub/amp-music-player/scripts/QcharacterReplacement.sh</file>
             <file>file:/home/jake/Documents/GitHub/amp-music-player/scripts/runAudio.sh</file>
             <file>file:/home/jake/Documents/GitHub/amp-music-player/scripts/connectFFProcesses.sh</file>
+            <file>file:/home/jake/Documents/GitHub/amp-music-player/scripts/QrunVideo.sh</file>
             <file>file:/home/jake/Documents/GitHub/amp-music-player/scripts/runVideo.sh</file>
             <file>file:/home/jake/Documents/GitHub/amp-music-player/scripts/characterReplacement.sh</file>
         </group>

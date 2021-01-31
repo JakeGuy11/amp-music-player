@@ -1,8 +1,5 @@
 #!/usr/bin/bash
 
-#Let the program know we've started
-echo "BASH: starting video script"
-
 #go to the scripts folder so we can preform actions from there
 cd ./scripts
 
@@ -26,9 +23,3 @@ rm -f ../gen/videoOut.mp4
 
 #concat all the specified inputs without audio
 ffmpeg -i "$CONCATCMD" -an -c copy ../gen/videoOut.mp4
-
-#Wait a while for the console to catch up
-sleep 1.25
-
-#Let the program know we're done
-echo "BASH: finished video script"

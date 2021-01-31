@@ -5,4 +5,4 @@
 #AV Things that take up a lot of storage
 *.mp3
 *.mp4
-*.ts
+.ts

@@ -43,7 +43,7 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Component id="dTitlePanel" max="32767" attributes="0"/>
-              <Group type="102" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
@@ -51,16 +51,19 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="dButtonSelectDir" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Group type="102" attributes="0">
-                          <Component id="dLabelMusicDir" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                      </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="dCleanMode" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="147" max="32767" attributes="0"/>
+                          <Component id="dConvertMode" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace pref="73" max="32767" attributes="0"/>
                           <Component id="dStopButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="dStartButton" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" attributes="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="dCleanMode" min="-2" max="-2" attributes="0"/>
+                              <Component id="dLabelMusicDir" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
@@ -78,11 +81,13 @@
                       <Component id="dBoxMusicDir" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="dButtonSelectDir" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" pref="109" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="85" max="-2" attributes="0"/>
+                  <Component id="dCleanMode" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="dCleanMode" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="dStartButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="dStopButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="dConvertMode" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -144,6 +149,11 @@
         <Component class="javax.swing.JCheckBox" name="dCleanMode">
           <Properties>
             <Property name="text" type="java.lang.String" value="Clean Console Mode"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JCheckBox" name="dConvertMode">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Convert non-native video formats"/>
           </Properties>
         </Component>
       </SubComponents>

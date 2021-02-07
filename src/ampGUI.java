@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 /**
  * @author Jake_Guy_11
@@ -121,6 +122,7 @@ public class ampGUI extends javax.swing.JFrame {
         dStartButton = new javax.swing.JButton();
         dStopButton = new javax.swing.JButton();
         dCleanMode = new javax.swing.JCheckBox();
+        dConvertMode = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(500, 250));
@@ -159,6 +161,8 @@ public class ampGUI extends javax.swing.JFrame {
 
         dCleanMode.setText("Clean Console Mode");
 
+        dConvertMode.setText("Convert non-native video formats");
+
         javax.swing.GroupLayout dPanelMainLayout = new javax.swing.GroupLayout(dPanelMain);
         dPanelMain.setLayout(dPanelMainLayout);
         dPanelMainLayout.setHorizontalGroup(
@@ -172,14 +176,16 @@ public class ampGUI extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(dButtonSelectDir))
                     .addGroup(dPanelMainLayout.createSequentialGroup()
-                        .addComponent(dLabelMusicDir)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(dPanelMainLayout.createSequentialGroup()
-                        .addComponent(dCleanMode)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 147, Short.MAX_VALUE)
+                        .addComponent(dConvertMode)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
                         .addComponent(dStopButton)
                         .addGap(18, 18, 18)
-                        .addComponent(dStartButton)))
+                        .addComponent(dStartButton))
+                    .addGroup(dPanelMainLayout.createSequentialGroup()
+                        .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(dCleanMode)
+                            .addComponent(dLabelMusicDir))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         dPanelMainLayout.setVerticalGroup(
@@ -192,11 +198,13 @@ public class ampGUI extends javax.swing.JFrame {
                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dBoxMusicDir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dButtonSelectDir))
-                .addGap(109, 109, 109)
+                .addGap(85, 85, 85)
+                .addComponent(dCleanMode)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(dCleanMode)
                     .addComponent(dStartButton)
-                    .addComponent(dStopButton))
+                    .addComponent(dStopButton)
+                    .addComponent(dConvertMode))
                 .addContainerGap())
         );
 
@@ -286,6 +294,75 @@ public class ampGUI extends javax.swing.JFrame {
         }
         
         System.out.println("Removed all old mp3's");
+        //Check if we want to convert non-ts videos
+        if(this.dConvertMode.isSelected()) {
+            System.out.println("Converting non-ts formats");
+            int confirmResult = JOptionPane.showConfirmDialog(null,
+                    "Are you sure you want to convert non-native video formats?\nThis will likely take a long time and use a lot of system resources.\nCurrently, the only supported types are mkv and mp4.",
+                    "Are you sure?",
+                    JOptionPane.YES_NO_OPTION);
+            if(confirmResult == JOptionPane.YES_OPTION){
+                //Now convert non-ts videos to ts
+                //Create blank list for all mp4's
+                List<File> mp4List;
+                //Generate the playlist with all mp4s
+                mp4List = generatePlayList("mp4", videoPath.toFile());
+                //Create a list for the video parts
+                List<String> videoPathPartList;
+                //Create a blank string for our file's actual name with .ts
+                String currentVideoName = "";
+                for(File currentFile : mp4List){
+                    try {
+                        //Create a list of all the parts of the video's path
+                        videoPathPartList = Arrays.asList(currentFile.getAbsoluteFile().toString().split("/"));
+                        System.out.println("Video Path Parts: " + videoPathPartList.toString());
+                        //Get the last element of that list (the filename) and replace the ext with .ts
+                        currentVideoName = videoPathPartList.get(videoPathPartList.size() - 1).replaceAll(".mp4", ".ts");
+                        System.out.println(currentVideoName);
+                        //Create our arguments for replacing the video with the ts and deleting the old one
+                        basicArgs[2] = "ffmpeg -i " + currentFile.getAbsolutePath() + " -s 1920x1080 -q:v 1 ./media/" + currentVideoName + "; " + "rm " + currentFile.getAbsolutePath();
+                        //Recreate our basic builder
+                        basicBuilder = new ProcessBuilder(basicArgs);
+                        //Redirect error and console output
+                        basicBuilder.redirectOutput(Redirect.INHERIT);
+                        basicBuilder.redirectError(Redirect.INHERIT);
+                        //Start the new process
+                        basicProc = basicBuilder.start();
+                        basicProc.waitFor();
+                    } catch (IOException | InterruptedException ex) {
+                        System.out.println(ex.toString());
+                    }
+                }
+                //Now do all of the above but for mkv's
+                //Create blank list for all mkv's
+                List<File> mkvList;
+                //Generate the playlist with all mp4s
+                mkvList = generatePlayList("mkv", videoPath.toFile());
+                for(File currentFile : mkvList){
+                    try {
+                        //Create a list of all the parts of the video's path
+                        videoPathPartList = Arrays.asList(currentFile.getAbsoluteFile().toString().split("/"));
+                        System.out.println("Video Path Parts: " + videoPathPartList.toString());
+                        //Get the last element of that list (the filename) and replace the ext with .ts
+                        currentVideoName = videoPathPartList.get(videoPathPartList.size() - 1).replaceAll(".mkv", ".ts");
+                        System.out.println(currentVideoName);
+                        //Create our arguments for replacing the video with the ts and deleting the old one
+                        basicArgs[2] = "ffmpeg -i " + currentFile.getAbsolutePath() + " -s 1920x1080 -q:v 1 ./media/" + currentVideoName + "; " + "rm " + currentFile.getAbsolutePath();
+                        //Recreate our basic builder
+                        basicBuilder = new ProcessBuilder(basicArgs);
+                        //Redirect error and console output
+                        basicBuilder.redirectOutput(Redirect.INHERIT);
+                        basicBuilder.redirectError(Redirect.INHERIT);
+                        //Start the new process
+                        basicProc = basicBuilder.start();
+                        basicProc.waitFor();
+                    } catch (IOException | InterruptedException ex) {
+                        System.out.println(ex.toString());
+                    }
+                }
+            }
+            System.out.println("Non-ts formats converted");
+        }
         System.out.println("Copying all selected music to ./media");
         
         //Create a list for our audio
@@ -575,6 +652,7 @@ public class ampGUI extends javax.swing.JFrame {
     private javax.swing.JTextField dBoxMusicDir;
     private javax.swing.JButton dButtonSelectDir;
     private javax.swing.JCheckBox dCleanMode;
+    private javax.swing.JCheckBox dConvertMode;
     private javax.swing.JLabel dLabelMusicDir;
     private javax.swing.JPanel dPanelMain;
     private javax.swing.JButton dStartButton;

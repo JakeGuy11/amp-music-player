@@ -113,6 +113,7 @@ public class ampGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        dVideoButtonGroup = new javax.swing.ButtonGroup();
         dPanelMain = new javax.swing.JPanel();
         dTitlePanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -123,15 +124,20 @@ public class ampGUI extends javax.swing.JFrame {
         dStopButton = new javax.swing.JButton();
         dCleanMode = new javax.swing.JCheckBox();
         dConvertMode = new javax.swing.JCheckBox();
+        dVideoOptionsLabel = new javax.swing.JLabel();
+        dDefaultVideoButton = new javax.swing.JRadioButton();
+        dYoutubeVideoButton = new javax.swing.JRadioButton();
+        dVideoURL = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(500, 250));
+        setPreferredSize(new java.awt.Dimension(500, 300));
         setResizable(false);
 
         dTitlePanel.setLayout(new java.awt.BorderLayout());
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("<html><h2>AMP Music Player</h1></html>");
+        jLabel1.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         dTitlePanel.add(jLabel1, java.awt.BorderLayout.CENTER);
 
         dLabelMusicDir.setText("Select your music directory (non-recursive):");
@@ -163,6 +169,23 @@ public class ampGUI extends javax.swing.JFrame {
 
         dConvertMode.setText("Convert non-native video formats");
 
+        dVideoOptionsLabel.setText("Select your video options:");
+
+        dVideoButtonGroup.add(dDefaultVideoButton);
+        dDefaultVideoButton.setSelected(true);
+        dDefaultVideoButton.setText("Use the default video location");
+
+        dVideoButtonGroup.add(dYoutubeVideoButton);
+        dYoutubeVideoButton.setText("Use custom YouTube video");
+        dYoutubeVideoButton.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                VideoButtonsChanged(evt);
+            }
+        });
+
+        dVideoURL.setText("https://www.youtube.com/watch?v=YOUTUBECODE");
+        dVideoURL.setEnabled(false);
+
         javax.swing.GroupLayout dPanelMainLayout = new javax.swing.GroupLayout(dPanelMain);
         dPanelMain.setLayout(dPanelMainLayout);
         dPanelMainLayout.setHorizontalGroup(
@@ -172,10 +195,6 @@ public class ampGUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(dPanelMainLayout.createSequentialGroup()
-                        .addComponent(dBoxMusicDir)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dButtonSelectDir))
-                    .addGroup(dPanelMainLayout.createSequentialGroup()
                         .addComponent(dConvertMode)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
                         .addComponent(dStopButton)
@@ -183,22 +202,39 @@ public class ampGUI extends javax.swing.JFrame {
                         .addComponent(dStartButton))
                     .addGroup(dPanelMainLayout.createSequentialGroup()
                         .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(dCleanMode)
-                            .addComponent(dLabelMusicDir))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                            .addComponent(dLabelMusicDir)
+                            .addComponent(dVideoOptionsLabel)
+                            .addComponent(dDefaultVideoButton)
+                            .addComponent(dYoutubeVideoButton)
+                            .addComponent(dCleanMode))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dPanelMainLayout.createSequentialGroup()
+                        .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(dVideoURL, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(dBoxMusicDir))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dButtonSelectDir)))
                 .addContainerGap())
         );
         dPanelMainLayout.setVerticalGroup(
             dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(dPanelMainLayout.createSequentialGroup()
-                .addComponent(dTitlePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(dTitlePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(dLabelMusicDir)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dBoxMusicDir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dButtonSelectDir))
-                .addGap(85, 85, 85)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(dVideoOptionsLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(dDefaultVideoButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(dYoutubeVideoButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(dVideoURL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
                 .addComponent(dCleanMode)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -581,6 +617,18 @@ public class ampGUI extends javax.swing.JFrame {
         this.dStopButton.setVisible(false);
     }//GEN-LAST:event_StopPlayback
 
+    private void VideoButtonsChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_VideoButtonsChanged
+        //Someone changed the radio button selection
+        //If 'custom video' is selected, enable the ext field so they can put their url in
+        if(this.dYoutubeVideoButton.isSelected()) {
+            //The custom video option is selected. Enable the text field
+            this.dVideoURL.setEnabled(true);
+        } else {
+            //The custom video option is not selected. Disable the text field
+            this.dVideoURL.setEnabled(false);
+        }
+    }//GEN-LAST:event_VideoButtonsChanged
+
     /**
      * @param args the command line arguments
      */
@@ -653,11 +701,16 @@ public class ampGUI extends javax.swing.JFrame {
     private javax.swing.JButton dButtonSelectDir;
     private javax.swing.JCheckBox dCleanMode;
     private javax.swing.JCheckBox dConvertMode;
+    private javax.swing.JRadioButton dDefaultVideoButton;
     private javax.swing.JLabel dLabelMusicDir;
     private javax.swing.JPanel dPanelMain;
     private javax.swing.JButton dStartButton;
     private javax.swing.JButton dStopButton;
     private javax.swing.JPanel dTitlePanel;
+    private javax.swing.ButtonGroup dVideoButtonGroup;
+    private javax.swing.JLabel dVideoOptionsLabel;
+    private javax.swing.JTextField dVideoURL;
+    private javax.swing.JRadioButton dYoutubeVideoButton;
     private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
 }

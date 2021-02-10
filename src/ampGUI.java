@@ -128,9 +128,9 @@ public class ampGUI extends javax.swing.JFrame {
         dDefaultVideoButton = new javax.swing.JRadioButton();
         dYoutubeVideoButton = new javax.swing.JRadioButton();
         dVideoURL = new javax.swing.JTextField();
+        dIsLivestream = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(500, 300));
         setResizable(false);
 
         dTitlePanel.setLayout(new java.awt.BorderLayout());
@@ -176,15 +176,17 @@ public class ampGUI extends javax.swing.JFrame {
         dDefaultVideoButton.setText("Use the default video location");
 
         dVideoButtonGroup.add(dYoutubeVideoButton);
-        dYoutubeVideoButton.setText("Use custom YouTube video");
+        dYoutubeVideoButton.setText("Use YouTube video");
         dYoutubeVideoButton.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 VideoButtonsChanged(evt);
             }
         });
 
-        dVideoURL.setText("https://www.youtube.com/watch?v=YOUTUBECODE");
+        dVideoURL.setText("https://www.youtube.com/watch?v=");
         dVideoURL.setEnabled(false);
+
+        dIsLivestream.setText("Livestream");
 
         javax.swing.GroupLayout dPanelMainLayout = new javax.swing.GroupLayout(dPanelMain);
         dPanelMain.setLayout(dPanelMainLayout);
@@ -196,22 +198,24 @@ public class ampGUI extends javax.swing.JFrame {
                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(dPanelMainLayout.createSequentialGroup()
                         .addComponent(dConvertMode)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(dStopButton)
                         .addGap(18, 18, 18)
                         .addComponent(dStartButton))
-                    .addGroup(dPanelMainLayout.createSequentialGroup()
-                        .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(dLabelMusicDir)
-                            .addComponent(dVideoOptionsLabel)
-                            .addComponent(dDefaultVideoButton)
-                            .addComponent(dYoutubeVideoButton)
-                            .addComponent(dCleanMode))
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dPanelMainLayout.createSequentialGroup()
-                        .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(dVideoURL, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(dBoxMusicDir))
+                        .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(dBoxMusicDir)
+                            .addGroup(dPanelMainLayout.createSequentialGroup()
+                                .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(dLabelMusicDir)
+                                    .addComponent(dVideoOptionsLabel)
+                                    .addComponent(dDefaultVideoButton)
+                                    .addComponent(dYoutubeVideoButton)
+                                    .addComponent(dCleanMode)
+                                    .addComponent(dVideoURL, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(dIsLivestream)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(dButtonSelectDir)))
                 .addContainerGap())
@@ -231,10 +235,13 @@ public class ampGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(dDefaultVideoButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(dYoutubeVideoButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(dVideoURL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
+                .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(dPanelMainLayout.createSequentialGroup()
+                        .addComponent(dYoutubeVideoButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dVideoURL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(dIsLivestream))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
                 .addComponent(dCleanMode)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -252,7 +259,7 @@ public class ampGUI extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(dPanelMain, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(dPanelMain, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -543,6 +550,14 @@ public class ampGUI extends javax.swing.JFrame {
         System.out.println("Generated script commands and arguments");
         System.out.println("Starting all processes");
         
+        //Make a variable on whether or not to get the video from YouTube or not
+        boolean isCloudVideo = this.dYoutubeVideoButton.isSelected();
+        boolean isLivestream = this.dIsLivestream.isSelected();
+        
+        //If it is a cloud video, change the ffplay command to play it
+        if(isCloudVideo) ffVideoArgs[2] = "ffplay -fs -loop -1 -an `youtube-dl -f best -g " + this.dVideoURL.getText() + "`";
+        if(isLivestream) ffVideoArgs[2] = "ffplay -fs -an `youtube-dl -f best -g " + this.dVideoURL.getText() + "`";
+        
         try {
             System.out.println("Creating processBuilders");
             //Create a new processbuilder made from the parts of the command we want to run for all 4 processes
@@ -563,12 +578,14 @@ public class ampGUI extends javax.swing.JFrame {
             ffVideoBuilder.redirectError(Redirect.INHERIT);
             ffAudioBuilder.redirectError(Redirect.INHERIT);
             System.out.println("Redirected terminal output");
-            System.out.println("Starting video process");
-            videoProc = videoBuilder.start();
-            //Wait for the video process to finish
-            videoProc.waitFor();
-            TimeUnit.SECONDS.sleep((long) 0.5);
-            System.out.println("Video proc finished");
+            if(!isCloudVideo){
+                System.out.println("Starting video process");
+                videoProc = videoBuilder.start();
+                //Wait for the video process to finish
+                videoProc.waitFor();
+                TimeUnit.SECONDS.sleep((long) 0.5);
+                System.out.println("Video proc finished");
+            }
             //The video generating process is done, start generating the audio
             System.out.println("Starting audio process");
             audioProc = audioBuilder.start();
@@ -702,6 +719,7 @@ public class ampGUI extends javax.swing.JFrame {
     private javax.swing.JCheckBox dCleanMode;
     private javax.swing.JCheckBox dConvertMode;
     private javax.swing.JRadioButton dDefaultVideoButton;
+    private javax.swing.JCheckBox dIsLivestream;
     private javax.swing.JLabel dLabelMusicDir;
     private javax.swing.JPanel dPanelMain;
     private javax.swing.JButton dStartButton;

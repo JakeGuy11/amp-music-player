@@ -47,28 +47,40 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" attributes="0">
                           <Component id="dConvertMode" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
                           <Component id="dStopButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="dStartButton" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Group type="102" alignment="1" attributes="0">
+                      <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="dBoxMusicDir" max="32767" attributes="0"/>
                               <Group type="102" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="dLabelMusicDir" min="-2" max="-2" attributes="0"/>
-                                      <Component id="dVideoOptionsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="dDefaultVideoButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="dYoutubeVideoButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="dCleanMode" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="dVideoURL" alignment="0" min="-2" pref="325" max="-2" attributes="0"/>
+                                      <Group type="102" attributes="0">
+                                          <Group type="103" groupAlignment="0" attributes="0">
+                                              <Component id="dLabelMusicDir" min="-2" max="-2" attributes="0"/>
+                                              <Group type="102" alignment="0" attributes="0">
+                                                  <Component id="dVideoOptionsLabel" min="-2" max="-2" attributes="0"/>
+                                                  <EmptySpace max="-2" attributes="0"/>
+                                                  <Component id="dVideoHelp" min="-2" pref="16" max="-2" attributes="0"/>
+                                              </Group>
+                                              <Component id="dDefaultVideoButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              <Component id="dYoutubeVideoButton" alignment="0" min="-2" max="-2" attributes="0"/>
+                                              <Component id="dCleanMode" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          </Group>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="dAudioHelp" min="-2" pref="16" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="dVideoURL" min="-2" pref="325" max="-2" attributes="0"/>
+                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <Component id="dIsLivestream" min="-2" max="-2" attributes="0"/>
+                                      </Group>
                                   </Group>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="dIsLivestream" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace pref="9" max="32767" attributes="0"/>
+                                  <EmptySpace min="0" pref="3" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -84,24 +96,28 @@
               <Group type="102" alignment="0" attributes="0">
                   <Component id="dTitlePanel" min="-2" pref="50" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="dLabelMusicDir" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="dLabelMusicDir" min="-2" max="-2" attributes="0"/>
+                      <Component id="dAudioHelp" min="-2" pref="16" max="-2" attributes="0"/>
+                  </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="dBoxMusicDir" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="dButtonSelectDir" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="dVideoOptionsLabel" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="dVideoOptionsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="dVideoHelp" alignment="3" min="-2" pref="16" max="-2" attributes="0"/>
+                  </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="dDefaultVideoButton" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="1" attributes="0">
-                      <Group type="102" attributes="0">
-                          <Component id="dYoutubeVideoButton" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="dVideoURL" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <Component id="dIsLivestream" min="-2" max="-2" attributes="0"/>
+                  <Component id="dYoutubeVideoButton" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="dVideoURL" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="dIsLivestream" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace pref="19" max="32767" attributes="0"/>
                   <Component id="dCleanMode" min="-2" max="-2" attributes="0"/>
@@ -214,6 +230,26 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Livestream"/>
           </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="dVideoHelp">
+          <Properties>
+            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+              <Image iconType="3" name="/res/help.gif"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="VideoHelpClicked"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="dAudioHelp">
+          <Properties>
+            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+              <Image iconType="3" name="/res/help.gif"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="AudioHelpClicked"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

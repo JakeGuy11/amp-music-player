@@ -129,6 +129,8 @@ public class ampGUI extends javax.swing.JFrame {
         dYoutubeVideoButton = new javax.swing.JRadioButton();
         dVideoURL = new javax.swing.JTextField();
         dIsLivestream = new javax.swing.JCheckBox();
+        dVideoHelp = new javax.swing.JButton();
+        dAudioHelp = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -188,6 +190,20 @@ public class ampGUI extends javax.swing.JFrame {
 
         dIsLivestream.setText("Livestream");
 
+        dVideoHelp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/res/help.gif"))); // NOI18N
+        dVideoHelp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                VideoHelpClicked(evt);
+            }
+        });
+
+        dAudioHelp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/res/help.gif"))); // NOI18N
+        dAudioHelp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AudioHelpClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout dPanelMainLayout = new javax.swing.GroupLayout(dPanelMain);
         dPanelMain.setLayout(dPanelMainLayout);
         dPanelMainLayout.setHorizontalGroup(
@@ -202,20 +218,28 @@ public class ampGUI extends javax.swing.JFrame {
                         .addComponent(dStopButton)
                         .addGap(18, 18, 18)
                         .addComponent(dStartButton))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, dPanelMainLayout.createSequentialGroup()
+                    .addGroup(dPanelMainLayout.createSequentialGroup()
                         .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(dBoxMusicDir)
                             .addGroup(dPanelMainLayout.createSequentialGroup()
                                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(dLabelMusicDir)
-                                    .addComponent(dVideoOptionsLabel)
-                                    .addComponent(dDefaultVideoButton)
-                                    .addComponent(dYoutubeVideoButton)
-                                    .addComponent(dCleanMode)
-                                    .addComponent(dVideoURL, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(dIsLivestream)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)))
+                                    .addGroup(dPanelMainLayout.createSequentialGroup()
+                                        .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(dLabelMusicDir)
+                                            .addGroup(dPanelMainLayout.createSequentialGroup()
+                                                .addComponent(dVideoOptionsLabel)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(dVideoHelp, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addComponent(dDefaultVideoButton)
+                                            .addComponent(dYoutubeVideoButton)
+                                            .addComponent(dCleanMode))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(dAudioHelp, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(dPanelMainLayout.createSequentialGroup()
+                                        .addComponent(dVideoURL, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(dIsLivestream)))
+                                .addGap(0, 3, Short.MAX_VALUE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(dButtonSelectDir)))
                 .addContainerGap())
@@ -225,21 +249,24 @@ public class ampGUI extends javax.swing.JFrame {
             .addGroup(dPanelMainLayout.createSequentialGroup()
                 .addComponent(dTitlePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(dLabelMusicDir)
+                .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(dLabelMusicDir)
+                    .addComponent(dAudioHelp, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dBoxMusicDir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dButtonSelectDir))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(dVideoOptionsLabel)
+                .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(dVideoOptionsLabel)
+                    .addComponent(dVideoHelp, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(dDefaultVideoButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(dPanelMainLayout.createSequentialGroup()
-                        .addComponent(dYoutubeVideoButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dVideoURL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(dYoutubeVideoButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(dPanelMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(dVideoURL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(dIsLivestream))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
                 .addComponent(dCleanMode)
@@ -646,6 +673,19 @@ public class ampGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_VideoButtonsChanged
 
+    private void VideoHelpClicked(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_VideoHelpClicked
+        //Display a dialogue with more video information
+        JOptionPane.showMessageDialog(this, "If the \"Use the default video location\"\nis selected, all compatable videos in\n~/.amp/media/ will be played. If the\n\"Use YouTube video\" option is selected,\nthe video URL in the text box will be played.",
+                "Video Help",
+                JOptionPane.PLAIN_MESSAGE);
+    }//GEN-LAST:event_VideoHelpClicked
+
+    private void AudioHelpClicked(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AudioHelpClicked
+        JOptionPane.showMessageDialog(this, "All the audio in the entered directory will be\nplayed. However, audio files in nested\ndirectories will not be played.",
+                "Audio Help",
+                JOptionPane.PLAIN_MESSAGE);
+    }//GEN-LAST:event_AudioHelpClicked
+
     /**
      * @param args the command line arguments
      */
@@ -714,6 +754,7 @@ public class ampGUI extends javax.swing.JFrame {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton dAudioHelp;
     private javax.swing.JTextField dBoxMusicDir;
     private javax.swing.JButton dButtonSelectDir;
     private javax.swing.JCheckBox dCleanMode;
@@ -726,6 +767,7 @@ public class ampGUI extends javax.swing.JFrame {
     private javax.swing.JButton dStopButton;
     private javax.swing.JPanel dTitlePanel;
     private javax.swing.ButtonGroup dVideoButtonGroup;
+    private javax.swing.JButton dVideoHelp;
     private javax.swing.JLabel dVideoOptionsLabel;
     private javax.swing.JTextField dVideoURL;
     private javax.swing.JRadioButton dYoutubeVideoButton;
